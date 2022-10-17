@@ -2,6 +2,9 @@
 MMS and Goose digital twins
 
 ## begin
+先確定有沒有安裝pipenv套件
+pip install pipenv
+
 1. pipenv --python 3.8
 2. pipenv install -r requirements.txt
 3. choose the interpreter of python
@@ -21,5 +24,6 @@ git branch name  # 建立新分支
 git commit
 git push
 git pull
-git merge
+git merge # 合併分支
+git checkout name #更換分支
 ```

@@ -53,9 +53,6 @@ e1a
 
 a07a020202bda474a172a0703022a020a11e1a095245463632304c44301a114d56474150433124535424496e643124743022a020a11e1a095245463632304c44301a114d56474150433124535424496e643124713026a024a1221a095245463632304c44301a154d56474150433124535424496e643124737456616c
 
-
-
-
 [(160, [(2, b'\x02\xbd'), (164, [(161, [(160, [(48, [(160, [(161, [(26, b'REF620LD0'), (26, b'MVGAPC1$ST$Ind1$t')])])]), (48, [(160, [(161, [(26, b'REF620LD0'), (26, b'MVGAPC1$ST$Ind1$q')])])]), (48, [(160, [(161, [(26, b'REF620LD0'), (26, b'MVGAPC1$ST$Ind1$stVal')])])])])])])])]
 
 
@@ -90,3 +87,32 @@ a07a020202bda474a172a0703022a020a11e1a095245463632304c44301a114d5647415043312453
     )
     ])])])])]
 
+a0 60 (confirmed_requestPDU)
+    02 02 021b (invokedID)
+    a5 5a (confirmedServiceRequest) write
+        a0 27 VariableAccessSpecification 
+            30 25 listofVariable
+                a0 23 name: ObjectName
+                    a1 21 domain-specific
+                        1a 0a 
+                            5245463632304354524c 
+                        1a 13 4342435357493124434f24506f732453424f77
+            
+            a02fa22d830101a214850103890f454c495053452d49454336313835308601009108000000000000000a83010084020600
+
+[{'MMS': 
+    [{'confirmed_RequestPDU': 
+        [{'invokeID': '021b', 
+            'Write_Request':[{'VariableAccessSpecification': 
+                                [{'VariableAccessSpecification': 
+                                    [{'ObjectName': 
+                                        [{'domain-specific': [
+                                            {'domainID': '5245463632304354524c'}, 
+                                            {'itemID': '4342435357493124434f24506f732453424f77'}]
+                                        }]
+                                    }]
+                                }]
+                            }]
+        }]
+    }]
+}]

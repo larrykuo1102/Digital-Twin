@@ -42,6 +42,16 @@ def Read_and_Parse_Encapsulation(pkt):
 
 Read_and_Parse_Encapsulation(pkt)
 
+print("ISO8823 begin with 61", tpkt_payload[22:24])
+
+print("ISO8823 payload", tpkt_payload[24:])
+
+# ISO8823, rest = Parser( tpkt_payload[22:], "ISO8823" )
+# MMS, rest = Parser( rest, "MMS" )
+
+
+Read_and_Parse_Encapsulation(pkt)
+
 # all_packets = sniff(offline = 'abb es_open ds_open cb_open2close_pcap.pcap', filter='dst host 192.168.2.13', prn=lambda x: x.summary() ) # 效率好
 # print(all_packets)
 # for per_packet in all_packets :

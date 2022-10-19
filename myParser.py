@@ -30,7 +30,7 @@ class _Parser() :
  ]
 
 
-MMS_data :list = []
+
 
 
 def getoneByte( hex_value ) -> str : # return value 1. onebyte value, 2. rest of value
@@ -162,17 +162,18 @@ def VariableAccessSpecification( value : str, mms_data : list ) :
     data, rest = ASN1_parser(value)
     if ( data['tag'] == '30') :
         temp_list = []
-        temp_dict['VariableAccessSpecification'] = temp_list
+        temp_dict['listofVariable'] = temp_list
         listofVariable( data['value'], temp_list )
         
     return rest
     
 
-def listofVariable( value : str, mms_data : list ) :
+def listofVariable( value : str, mms_data : list ) : # 'list'ofVariable
     temp_dict = {}
     mms_data.append( temp_dict )
     
-    data, rest = ASN1_parser(value)
+    data, rest = ASN1_parser(value) 
+    # 可能會有很多個 這個地方要再改
     if ( data['tag'] == 'a0') :
         temp_list = []
         temp_dict['ObjectName'] = temp_list
@@ -200,15 +201,11 @@ def ObjectName( value : str, mms_data : list ) :
     return rest
     
 
-def confirmed_ResponsePDU(  value : str  ) :
-    data, rest = ASN1_parser(value)
-    data, rest = ASN1_parser(value)
-    if ( data['tag'] == 'a0' ) :
-        pass
-    elif ( data['tag'] == '81' ) :
-        pass
+def confirmed_ResponsePDU(  value : str, mms_data : list ) :
+    pass
 
 def Parser( content : str, protocol : str ) -> list : 
+    MMS_data :list = []
     rest = ''
     data, content = ASN1_parser(content)
     
@@ -220,19 +217,14 @@ def Parser( content : str, protocol : str ) -> list :
         temp_dict['MMS'] = temp_list
         MMS_data.append( temp_dict )
         rest = MMS_Parser(data['value'], temp_list)
+        return MMS_data
     elif ( protocol == 'GOOSE') :
         pass
     
-    print(MMS_data)
-    # Parser()
-    # PDU MMS
-    # if( rest != '' ) :
-    #     data, content = ASN1_parser(content)
-    #     Parser()
     
 
-test_input = "a962a0600202021ba55aa0273025a023a1211a0a5245463632304354524c1a134342435357493124434f24506f732453424f77a02fa22d830101a214850103890f454c495053452d49454336313835308601009108000000000000000a83010084020600"    
-Parser(test_input, "MMS")
+# test_input = "a962a0600202021ba55aa0273025a023a1211a0a5245463632304354524c1a134342435357493124434f24506f732453424f77a02fa22d830101a214850103890f454c495053452d49454336313835308601009108000000000000000a83010084020600"    
+# Parser(test_input, "MMS")
 
 
 

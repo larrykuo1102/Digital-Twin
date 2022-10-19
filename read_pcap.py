@@ -2,11 +2,8 @@ from binascii import hexlify
 from scapy.all import *
 import binascii
 import re
-# from myParser import Parser
+# from myParser import Parser as myParser
 
-
-# print( a )
-# print( len(a[0][1]))
 pkt = rdpcap('mms_cap1.pcapng')
 print( "1.", pkt[0] )
 content = binascii.hexlify(bytes(pkt[0])).decode()
@@ -39,29 +36,9 @@ def Read_and_Parse_Encapsulation( pkt ):
     
     # ISO8823, rest = Parser( tpkt_payload[22:], "ISO8823" ) 
     # MMS, rest = Parser( rest, "MMS" ) 
-        
-
 
 Read_and_Parse_Encapsulation(pkt)
-
-
-
-# print(scapy_cap.summary())
-# print(scapy_cap.hexraw())
-# a = hexdump(scapy_cap[0])
-# , filter='dst host 192.168.2.13'
 
 # all_packets = sniff(offline = 'abb es_open ds_open cb_open2close_pcap.pcap', filter='dst host 192.168.2.13', prn=lambda x: x.summary() ) # 效率好
 # print(all_packets)
 # for per_packet in all_packets :
-    
-#     pass
-
-
-    
-    
-
-# import argparse
-# import os
-
-# os.argv[0]

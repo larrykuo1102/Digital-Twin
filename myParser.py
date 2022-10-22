@@ -1,5 +1,3 @@
-
-
 # --------------------------ASN1&BER Parser Information--------------------------
 # I.    object code 1byte 8 bits
 #       01                                                                   2                                   34567
@@ -15,13 +13,15 @@
 
 # --------------------------End--------------------------
 
+import json
+
+
 class _Parser():
     MMS_data = []
     rest_content = ''
 
     def Parser(self, content):
         self.rest_content = content
-
         pass
 
 
@@ -105,15 +105,20 @@ def ASN1_parser(value: str) -> dict:  # make data to be tag+length+value
 
 def MMS_Parser(value: str, mms_data: list):
     temp_dict = {}
+    temp_list = []
     mms_data.append(temp_dict)
 
     data, rest = ASN1_parser(value)
+
     if data['tag'] == 'a0':
-        temp_list = []
         temp_dict['confirmed_RequestPDU'] = temp_list
         rest = confirmed_RequestPDU(data['value'], temp_list)
     elif data['tag'] == 'a1':
-        rest = confirmed_ResponsePDU(data['value'])
+        temp_dict['confirmed_ResponsePDU'] = temp_list
+        rest = confirmed_ResponsePDU(data['value'], temp_list)
+    elif data['tag'] == 'a3':
+        temp_dict['unconfirmed_PDU'] = temp_list
+        rest = unconfirmed_PDU(data['value'], temp_list)
     return rest
 
 
@@ -160,8 +165,19 @@ def Write_Request(value: str, mms_data: list):
     return rest
 
 
+def Read_Response(value: str, mms_data: list):
+    temp_dict = {}
+    temp_list = []
+    mms_data.append(temp_dict)
+    temp_dict['listOfAccessResult'] = temp_list
+    rest = listOfAccessResult(value, temp_list)
+
+    return rest
+
+
 def VariableAccessSpecification(value: str, mms_data: list):
     temp_dict = {}
+    temp_list = []
     mms_data.append(temp_dict)
 
     data, rest = ASN1_parser(value)
@@ -169,6 +185,32 @@ def VariableAccessSpecification(value: str, mms_data: list):
         temp_list = []
         temp_dict['listofVariable'] = temp_list
         listofVariable(data['value'], temp_list)
+    elif (data['tag'] == 'a0'):
+        temp_list = []
+        temp_dict['listofVariable'] = temp_list
+        listofVariable(data['value'], temp_list)
+    elif data['tag'] == 'a1':
+        temp_list = []
+        temp_dict['variableListName'] = temp_list
+        variableListName(data['value'], temp_list)
+
+    return rest
+
+
+def listOfAccessResult(value: str, mms_data: list):
+    temp_dict = {}
+    temp_list = []
+    mms_data.append(temp_dict)
+    data, rest = ASN1_parser(value)
+    print(data, "\n", rest)
+    temp_dict['AccessResult'] = temp_list
+    rest = AccessResult(data['value'], temp_list)
+    while rest != "":
+        temp_dict = {}
+        temp_list = []
+        mms_data.append(temp_dict)
+        temp_dict['AccessResult'] = temp_list
+        rest = AccessResult(rest, temp_list)
 
     return rest
 
@@ -187,11 +229,22 @@ def listofVariable(value: str, mms_data: list):  # 'list'ofVariable
     return rest
 
 
+def variableListName(value: str, mms_data: list):
+    temp_dict = {}
+    temp_list = []
+    mms_data.append(temp_dict)
+
+    data, rest = ASN1_parser(value)
+    temp_dict['ObjectName'] = data['value']
+    return rest
+
+
 def ObjectName(value: str, mms_data: list):
     temp_dict = {}
     mms_data.append(temp_dict)
 
     data, rest = ASN1_parser(value)
+    print(data, "\n", rest)
     if (data['tag'] == 'a1'):
         temp_list = []
         temp_dict['domain-specific'] = temp_list
@@ -207,8 +260,93 @@ def ObjectName(value: str, mms_data: list):
     return rest
 
 
+def AccessResult(value: str, mms_data: list):
+    temp_dict = {}
+    temp_list = []
+    mms_data.append(temp_dict)
+    temp_dict['success'] = temp_list
+    rest = Data(value, temp_list)
+    return rest
+
+
+def Data(value: str, mms_data: list):
+    data, rest = ASN1_parser(value)
+    if data['tag'] == 'a2':
+        temp_dict = {}
+        temp_list = []
+        temp_iist2 = []
+        mms_data.append(temp_dict)
+        temp_dict['structure'] = temp_list
+        structure(data['value'], temp_list)
+    elif data['tag'] == '83':
+        mms_data.append({"boolean": data['value']})
+    elif data['tag'] == '84':
+        mms_data.append({"bit-string": data['value']})
+    elif data['tag'] == '85':
+        mms_data.append({"integer": data['value']})
+    elif data['tag'] == '86':
+        mms_data.append({"unsigned": data['value']})
+    elif data['tag'] == '8a':
+        mms_data.append({"visible-string": data['value']})
+    elif data['tag'] == '8c':
+        mms_data.append({"binary-time": data['value']})
+    elif data['tag'] == '91':
+        mms_data.append({"utc-time": data['value']})
+    return rest
+
+
+def structure(value: str, mms_data: list):
+    data, rest = ASN1_parser(value)
+    while rest != "":
+        rest = Data(rest, mms_data)
+    return rest
+
+
+def informationReport(value: str, mms_data: list):
+    temp_dict = {}
+    temp_list = []
+    temp_list2 = []
+    mms_data.append(temp_dict)
+
+    temp_dict['VariableAccessSpecification'] = temp_list
+    rest = VariableAccessSpecification(value, temp_list)
+
+    temp_dict['listOfAccessResult'] = temp_list2
+    rest = listOfAccessResult(rest, temp_list2)
+
+    return rest
+
+
 def confirmed_ResponsePDU(value: str, mms_data: list):
-    pass
+    temp_dict = {}
+    mms_data.append(temp_dict)
+
+    data, rest = ASN1_parser(value)
+    if (data['tag'] == '02'):  # invokeID
+        temp_dict['invokeID'] = data['value']
+
+    data, rest = ASN1_parser(rest)
+    if (data['tag'] == 'a4'):  # read
+        temp_list = []
+        temp_dict['Read_Response'] = temp_list
+        rest = Read_Response(data['value'], temp_list)
+    elif (data['tag'] == '81'):
+        pass
+
+    return rest
+
+
+def unconfirmed_PDU(value: str, mms_data: list):
+    temp_dict = {}
+    temp_list = []
+    mms_data.append(temp_dict)
+
+    data, rest = ASN1_parser(value)
+    if data['tag'] == 'a0':
+        temp_dict['informationReport'] = temp_list
+        rest = informationReport(data['value'], temp_list)
+
+    return rest
 
 
 def Parser(content: str, protocol: str) -> list:
@@ -230,4 +368,9 @@ def Parser(content: str, protocol: str) -> list:
 
 
 # test_input = "a962a0600202021ba55aa0273025a023a1211a0a5245463632304354524c1a134342435357493124434f24506f732453424f77a02fa22d830101a214850103890f454c495053452d49454336313835308601009108000000000000000a83010084020600"
-# Parser(test_input, "MMS")
+# test_input = "a01ca11a0202222aa414a11291086322a1dd92b020bf8403030000830100"
+test_input = "a081c6a381c3a081c0a1058003525054a081b68a1453454c3735314346472f4c4c4e30245250244d588403067880860200f78c06014540d337398a1753454c3735314346472f4c4c4e302444617461536574318601018403010004a268a212850101840303000091086322a1dd92b020bfa212830100840303000091086322a1dd92b020bfa21684020640840303000091086322be4389fbe7bf830100a212830100840303000091086322a1dd92b020bfa212830100840303000091086322a1dd92b020bf84020240 "
+
+parsed = json.dumps(Parser(test_input, "MMS"), indent=2)
+print(parsed)
+# print(Parser(test_input, "MMS"))

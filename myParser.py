@@ -326,7 +326,6 @@ def confirmed_ResponsePDU(value: str, mms_data: list):
         pass
 
     return rest
-    pass
 
 
 def unconfirmed_PDU(value: str, mms_data: list):

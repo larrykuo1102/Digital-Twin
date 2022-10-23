@@ -1,9 +1,10 @@
 import binascii
+import json
 import re
 
 from scapy.all import *
 
-# from myParser import Parser as myParser
+from myParser import Parser as myParser
 
 pkt = rdpcap('mms_cap1.pcapng')
 print("1.", pkt[0])
@@ -12,6 +13,7 @@ print("2.", content)
 
 
 def Read_and_Parse_Encapsulation(pkt):
+    all_packet_data = []
     print("1.", pkt[0])
     content = binascii.hexlify(bytes(pkt[0])).decode()
     print("2.", content)
@@ -24,30 +26,30 @@ def Read_and_Parse_Encapsulation(pkt):
     tpkt_payload = content[start_index:start_index+tkpt_length]
 
     TPKT = [tpkt_payload[:2], tpkt_payload[2:4], tpkt_payload[4:8]]
-    print("TKPT", TPKT)
+    all_packet_data.append({'TPKT': TPKT})
+    # print("TKPT", TPKT)
     COTP = [tpkt_payload[8:10], tpkt_payload[10:12], tpkt_payload[12:14]]
-    print("COTP", COTP)
+    all_packet_data.append({'COTP': COTP})
+    # print("COTP", COTP)
     ISO8327A = [tpkt_payload[14:16], tpkt_payload[16:18]]
-    print("ISO8327A", ISO8327A)
+    all_packet_data.append({'ISO8327A': ISO8327A})
+    # print("ISO8327A", ISO8327A)
     ISO8327B = [tpkt_payload[18:20], tpkt_payload[20:22]]
-    print("ISO8327B", ISO8327B)
+    all_packet_data.append({'ISO8327B': ISO8327B})
+    # print("ISO8327B", ISO8327B)
 
-    print("ISO8823 begin with 61", tpkt_payload[22:24])
+    # print("ISO8823 begin with 61", tpkt_payload[22:24])
 
-    print("ISO8823 payload", tpkt_payload[24:])
+    # print("ISO8823 payload", tpkt_payload[24:])
 
-    # ISO8823, rest = Parser( tpkt_payload[22:], "ISO8823" )
-    # MMS, rest = Parser( rest, "MMS" )
+    rest, ISO8823 = myParser(tpkt_payload[22:], "ISO8823")
+    all_packet_data.append(ISO8823[0])
+    # print(json.dumps(ISO8823, indent=2), '\n', rest)
+    rest, MMS = myParser(rest, "MMS")
+    all_packet_data.append(MMS[0])
+    # print(json.dumps(MMS, indent=2), '\n', rest)
 
-
-Read_and_Parse_Encapsulation(pkt)
-
-print("ISO8823 begin with 61", tpkt_payload[22:24])
-
-print("ISO8823 payload", tpkt_payload[24:])
-
-# ISO8823, rest = Parser( tpkt_payload[22:], "ISO8823" )
-# MMS, rest = Parser( rest, "MMS" )
+    print(json.dumps(all_packet_data, indent=2))
 
 
 Read_and_Parse_Encapsulation(pkt)

@@ -199,21 +199,20 @@ def VariableAccessSpecification(value: str, mms_data: list):
     mms_data.append(temp_dict)
 
     data, rest = ASN1_parser(value)
-
+    rest2 = rest
     if (data['tag'] == '30'):
         temp_list = []
         temp_dict['listofVariable'] = temp_list
         listofVariable(data['value'], temp_list)
     elif (data['tag'] == 'a0'):
         temp_list = []
-        temp_dict['listofVariable'] = temp_list
+        temp_dict['listofVariable2'] = temp_list
         rest = listofVariable(data['value'], temp_list)
     elif data['tag'] == 'a1':
         temp_list = []
         temp_dict['variableListName'] = temp_list
         variableListName(data['value'], temp_list)
-
-    return rest
+    return rest2
 
 
 def listOfAccessResult(value: str, mms_data: list):
@@ -244,6 +243,7 @@ def listofVariable(value: str, mms_data: list):  # 'list'ofVariable
         temp_list = []
         temp_dict['VariableSpecification'] = temp_list
         rest = VariableSpecification(value, temp_list)
+
     elif (data['tag'] == '30'):
         temp_list = []
         temp_dict['listofVariable'] = temp_list
@@ -256,7 +256,6 @@ def listofVariable(value: str, mms_data: list):  # 'list'ofVariable
                 mms_data.append(temp_dict)
                 temp_dict['listofVariable'] = temp_list
                 listofVariable(data['value'], temp_list)
-
     return rest
 
 
@@ -269,7 +268,6 @@ def VariableSpecification(value: str, mms_data: list):
         temp_list = []
         temp_dict['ObjectName'] = temp_list
         rest = ObjectName(data['value'], temp_list)
-
     return rest
 
 
@@ -286,7 +284,6 @@ def variableListName(value: str, mms_data: list):
 def ObjectName(value: str, mms_data: list):
     temp_dict = {}
     mms_data.append(temp_dict)
-
     data, rest = ASN1_parser(value)
     if (data['tag'] == 'a1'):
         temp_list = []
@@ -299,7 +296,6 @@ def ObjectName(value: str, mms_data: list):
             temp_list.append({"itemID": data['value']})
     elif (data['tag'] == 'a0'):
         pass
-
     return rest
 
 
@@ -335,11 +331,17 @@ def Data(value: str, mms_data: list):
         mms_data.append({"binary-time": data['value']})
     elif data['tag'] == '91':
         mms_data.append({"utc-time": data['value']})
+    elif data['tag'] == '89':
+        mms_data.append({"octet-string": data['value']})
     return rest
 
 
 def structure(value: str, mms_data: list):
     data, rest = ASN1_parser(value)
+    if data['tag'] == '83':
+        mms_data.append({"boolean": data['value']})
+    elif data['tag'] == '85':
+        mms_data.append({"integer": data['value']})
     while rest != "":
         rest = Data(rest, mms_data)
     return rest
@@ -353,10 +355,8 @@ def informationReport(value: str, mms_data: list):
 
     temp_dict['VariableAccessSpecification'] = temp_list
     rest = VariableAccessSpecification(value, temp_list)
-
     temp_dict['listOfAccessResult'] = temp_list2
     rest = listOfAccessResult(rest, temp_list2)
-
     return rest
 
 
@@ -411,9 +411,10 @@ def Parser(content: str, protocol: str) -> list:
 
 
 # test_input = "a962a0600202021ba55aa0273025a023a1211a0a5245463632304354524c1a134342435357493124434f24506f732453424f77a02fa22d830101a214850103890f454c495053452d49454336313835308601009108000000000000000a83010084020600"
-# test_input = "a01ca11a0202222aa414a11291086322a1dd92b020bf8403030000830100"
-# test_input = "a081c6a381c3a081c0a1058003525054a081b68a1453454c3735314346472f4c4c4e30245250244d588403067880860200f78c06014540d337398a1753454c3735314346472f4c4c4e302444617461536574318601018403010004a268a212850101840303000091086322a1dd92b020bfa212830100840303000091086322a1dd92b020bfa21684020640840303000091086322be4389fbe7bf830100a212830100840303000091086322a1dd92b020bfa212830100840303000091086322a1dd92b020bf84020240 "
-test_input = "a07ca07a02020212a474a172a0703022a020a11e1a095245463632304c44301a114d56474150433124535424496e643124743022a020a11e1a095245463632304c44301a114d56474150433124535424496e643124713026a024a1221a095245463632304c44301a154d56474150433124535424496e643124737456616c"
+#test_input = "a01ca11a020215aba414a11291086322c3739df3b6bf8403030000830100"
+test_input = "a081c6a381c3a081c0a1058003525054a081b68a1453454c3735314346472f4c4c4e30245250244d588403067880860200f78c06014540d337398a1753454c3735314346472f4c4c4e302444617461536574318601018403010004a268a212850101840303000091086322a1dd92b020bfa212830100840303000091086322a1dd92b020bfa21684020640840303000091086322be4389fbe7bf830100a212830100840303000091086322a1dd92b020bfa212830100840303000091086322a1dd92b020bf84020240 "
+#test_input = "a07fa07d02020226a477a175a0733023a021a11f1a0953454c373531414e4e1a124c544747494f3524535424496e64303524743023a021a11f1a0953454c373531414e4e1a124c544747494f3524535424496e64303524713027a025a1231a0953454c373531414e4e1a164c544747494f3524535424496e64303524737456616c"
+#test_input = "a05ea35ca05aa0273025a023a1211a0a5245463632304354524c1a134342435357493124434f24506f73244f706572a02fa22d830101a214850103890f454c495053452d49454336313835308601009108000000000000000a83010084020600"
 parsed = json.dumps(Parser(test_input, "MMS"), indent=2)
 print(parsed)
 # print(Parser(test_input, "MMS"))

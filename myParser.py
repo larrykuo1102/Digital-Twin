@@ -124,15 +124,54 @@ def MMS_Parser(value: str, mms_data: list):
     return rest
 
 
-def ISO8823_Parser(value: str):
+def ISO8823_Parser(value: str, mms_data: list):
+    temp_dict = {}
+    mms_data.append(temp_dict)
     data, rest = ASN1_parser(value)
-    if data['tag'] == 'a0':
-        confirmed_RequestPDU(data['value'])
-    elif data['tag'] == 'a1':
-        rest = confirmed_ResponsePDU(data['value'])
+    if data['tag'] == '61':
+        print("ISO88232", data['tag'])
+        templist = []
+        temp_dict['User-Data'] = templist
+        rest = ISO8823_User_Data(data['value'], templist)
 
-    data['value']
     return rest
+
+
+def ISO8823_User_Data(value: str, mms_data: list):
+    temp_dict = {}
+    mms_data.append(temp_dict)
+    data, rest = ASN1_parser(value)
+    if (data['tag'] == '30'):
+        templist = []
+        temp_dict['Fully-Encoded-data'] = templist
+        rest = ISO8823_Fully_Encoded_data(value, templist)
+    return rest
+
+
+def ISO8823_Fully_Encoded_data(value: str, mms_data: list):
+    temp_dict = {}
+    mms_data.append(temp_dict)
+    data, rest = ASN1_parser(value)
+    if (data['tag'] == '30'):
+        templist = []
+        temp_dict['PDV-list'] = templist
+        rest = ISO8823_PDV_list(data['value'], templist)
+    return rest
+
+
+def ISO8823_PDV_list(value: str, mms_data: list):
+    temp_dict = {}
+    mms_data.append(temp_dict)
+    data, rest = ASN1_parser(value)
+    if (data['tag'] == '02'):
+        templist = []
+        temp_dict['presentation-context-identifier'] = data['value']
+
+    data, rest = ASN1_parser(rest)
+    if (data['tag'] == 'a0'):
+        if (data['value'][:2] == 'a0'):
+            temp_dict['presentation-data-values'] = 'MMS'
+    return data['value']
 
 
 def confirmed_RequestPDU(value: str, mms_data: list):
@@ -395,19 +434,24 @@ def unconfirmed_PDU(value: str, mms_data: list):
 def Parser(content: str, protocol: str) -> list:
     MMS_data: list = []
     rest = ''
-    data, content = ASN1_parser(content)
+    data, value = ASN1_parser(content)
 
     if (protocol == 'ISO8823' and data["tag"] == '61'):
-        rest = ISO8823_Parser(data['value'])
+        temp_dict = {}
+        temp_list = []
+        temp_dict['ISO8823'] = temp_list
+        MMS_data.append(temp_dict)
+        rest = ISO8823_Parser(content, temp_list)
     elif (protocol == 'MMS'):
         temp_dict = {}
         temp_list = []
         temp_dict['MMS'] = temp_list
         MMS_data.append(temp_dict)
-        rest = MMS_Parser(data['value'], temp_list)
-        return MMS_data
+        rest = MMS_Parser(content, temp_list)
     elif (protocol == 'GOOSE'):
         pass
+
+    return rest, MMS_data
 
 
 # test_input = "a962a0600202021ba55aa0273025a023a1211a0a5245463632304354524c1a134342435357493124434f24506f732453424f77a02fa22d830101a214850103890f454c495053452d49454336313835308601009108000000000000000a83010084020600"

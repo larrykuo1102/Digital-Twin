@@ -170,7 +170,7 @@ def Write_Request(value: str, mms_data: list):
     data, rest = ASN1_parser(rest)
     if (data['tag'] == 'a0'):
         temp_list = []
-        temp_dict['VariableAccessSpecification'] = temp_list
+        temp_dict['listofData'] = temp_list
         Data(data['value'], temp_list)
 
     return rest
@@ -212,7 +212,7 @@ def VariableAccessSpecification(value: str, mms_data: list):
         listofVariable(data['value'], temp_list)
     elif (data['tag'] == 'a0'):
         temp_list = []
-        temp_dict['listofVariable2'] = temp_list
+        temp_dict['listofVariables'] = temp_list
         rest = listofVariable(data['value'], temp_list)
     elif data['tag'] == 'a1':
         temp_list = []
@@ -416,6 +416,6 @@ def Parser(content: str, protocol: str) -> list:
         pass
 
 
-test_input = "a065a06302020d90a55da02a3028a026a1241a0b41514632353552656c61791a154f424a33435357493324434f24506f732453424f77a02fa22d830100a214850103890f454c495053452d49454336313835308601069108000000000000000a83010084020600"
+test_input = "a07fa07d0202022ea477a175a0733023a021a11f1a0953454c373531414e4e1a124c544747494f3524535424496e64303524743023a021a11f1a0953454c373531414e4e1a124c544747494f3524535424496e64303524713027a025a1231a0953454c373531414e4e1a164c544747494f3524535424496e64303524737456616c"
 parsed = json.dumps(Parser(test_input, "MMS"), indent=2)
 print(parsed)

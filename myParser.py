@@ -204,7 +204,13 @@ def Write_Request(value: str, mms_data: list):
     if (data['tag'] == 'a0'):
         temp_list = []
         temp_dict['VariableAccessSpecification'] = temp_list
-        rest = VariableAccessSpecification(data['value'], temp_list)
+        VariableAccessSpecification(data['value'], temp_list)
+
+    data, rest = ASN1_parser(rest)
+    if (data['tag'] == 'a0'):
+        temp_list = []
+        temp_dict['listofData'] = temp_list
+        Data(data['value'], temp_list)
 
     return rest
 
@@ -238,21 +244,20 @@ def VariableAccessSpecification(value: str, mms_data: list):
     mms_data.append(temp_dict)
 
     data, rest = ASN1_parser(value)
-
+    rest2 = rest
     if (data['tag'] == '30'):
         temp_list = []
         temp_dict['listofVariable'] = temp_list
         listofVariable(data['value'], temp_list)
     elif (data['tag'] == 'a0'):
         temp_list = []
-        temp_dict['listofVariable'] = temp_list
+        temp_dict['listofVariables'] = temp_list
         rest = listofVariable(data['value'], temp_list)
     elif data['tag'] == 'a1':
         temp_list = []
         temp_dict['variableListName'] = temp_list
         variableListName(data['value'], temp_list)
-
-    return rest
+    return rest2
 
 
 def listOfAccessResult(value: str, mms_data: list):
@@ -283,6 +288,7 @@ def listofVariable(value: str, mms_data: list):  # 'list'ofVariable
         temp_list = []
         temp_dict['VariableSpecification'] = temp_list
         rest = VariableSpecification(value, temp_list)
+
     elif (data['tag'] == '30'):
         temp_list = []
         temp_dict['listofVariable'] = temp_list
@@ -295,7 +301,6 @@ def listofVariable(value: str, mms_data: list):  # 'list'ofVariable
                 mms_data.append(temp_dict)
                 temp_dict['listofVariable'] = temp_list
                 listofVariable(data['value'], temp_list)
-
     return rest
 
 
@@ -308,7 +313,6 @@ def VariableSpecification(value: str, mms_data: list):
         temp_list = []
         temp_dict['ObjectName'] = temp_list
         rest = ObjectName(data['value'], temp_list)
-
     return rest
 
 
@@ -325,7 +329,6 @@ def variableListName(value: str, mms_data: list):
 def ObjectName(value: str, mms_data: list):
     temp_dict = {}
     mms_data.append(temp_dict)
-
     data, rest = ASN1_parser(value)
     if (data['tag'] == 'a1'):
         temp_list = []
@@ -338,7 +341,6 @@ def ObjectName(value: str, mms_data: list):
             temp_list.append({"itemID": data['value']})
     elif (data['tag'] == 'a0'):
         pass
-
     return rest
 
 
@@ -356,7 +358,7 @@ def Data(value: str, mms_data: list):
     if data['tag'] == 'a2':
         temp_dict = {}
         temp_list = []
-        temp_iist2 = []
+        temp_list2 = []
         mms_data.append(temp_dict)
         temp_dict['structure'] = temp_list
         structure(data['value'], temp_list)
@@ -374,11 +376,17 @@ def Data(value: str, mms_data: list):
         mms_data.append({"binary-time": data['value']})
     elif data['tag'] == '91':
         mms_data.append({"utc-time": data['value']})
+    elif data['tag'] == '89':
+        mms_data.append({"octet-string": data['value']})
     return rest
 
 
 def structure(value: str, mms_data: list):
     data, rest = ASN1_parser(value)
+    if data['tag'] == '83':
+        mms_data.append({"boolean": data['value']})
+    elif data['tag'] == '85':
+        mms_data.append({"integer": data['value']})
     while rest != "":
         rest = Data(rest, mms_data)
     return rest
@@ -392,10 +400,8 @@ def informationReport(value: str, mms_data: list):
 
     temp_dict['VariableAccessSpecification'] = temp_list
     rest = VariableAccessSpecification(value, temp_list)
-
     temp_dict['listOfAccessResult'] = temp_list2
     rest = listOfAccessResult(rest, temp_list2)
-
     return rest
 
 

@@ -6,17 +6,10 @@ from scapy.all import *
 
 from myParser import Parser as myParser
 
-pkt = rdpcap('mms_cap1.pcapng')
-print("1.", pkt[0])
-content = binascii.hexlify(bytes(pkt[0])).decode()
-print("2.", content)
-
 
 def Read_and_Parse_Encapsulation(pkt):
     all_packet_data = []
-    print("1.", pkt[0])
-    content = binascii.hexlify(bytes(pkt[0])).decode()
-    print("2.", content)
+    content = binascii.hexlify(bytes(pkt)).decode()
 
     cotp_index = re.search('0300....02f080', content).span()  # search COTP
     content = content[cotp_index[0]:]
@@ -44,16 +37,29 @@ def Read_and_Parse_Encapsulation(pkt):
 
     rest, ISO8823 = myParser(tpkt_payload[22:], "ISO8823")
     all_packet_data.append(ISO8823[0])
-    # print(json.dumps(ISO8823, indent=2), '\n', rest)
+
     rest, MMS = myParser(rest, "MMS")
     all_packet_data.append(MMS[0])
-    # print(json.dumps(MMS, indent=2), '\n', rest)
 
     print(json.dumps(all_packet_data, indent=2))
 
 
-Read_and_Parse_Encapsulation(pkt)
+pkt = rdpcap('mms_cap1.pcapng')
+# print("1.", pkt[0])
+content = binascii.hexlify(bytes(pkt[0])).decode()
+# print("2.", content)
+Read_and_Parse_Encapsulation(pkt[0])
 
+
+# a = Ether()/IP(dst='192.168.2.13')/TCP()/"test scapy by python"
+# sendp(a)
+# a = IP(dst='192.168.2.13')/TCP()/"test scapy by python"
+# pkt[0].show()
+# sendp(pkt[0])
+# for i in pkt:
+#     sendp(i)
+# send(pkt[1])
+# print(a)
+# sniff(iface="en0", filter='tcp and dst host 192.168.2.13 and src host 192.168.2.202', prn=lambda x: x.show())
 # all_packets = sniff(offline = 'abb es_open ds_open cb_open2close_pcap.pcap', filter='dst host 192.168.2.13', prn=lambda x: x.summary() ) # 效率好
 # print(all_packets)
-# for per_packet in all_packets :

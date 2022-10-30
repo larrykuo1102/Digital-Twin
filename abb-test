@@ -117,8 +117,145 @@ a0 60 (confirmed_requestPDU)
     }]
 }]
 
+<!-- write request 少一層 write-request()
+
+read 會多一層 -->
 
 
-write request 少一層 write-request()
 
-read 會多一層
+
+[
+  {
+    "TPKT": [
+      "03",
+      "00",
+      "0092"
+    ]
+  },
+  {
+    "COTP": [
+      "02",
+      "f0",
+      "80"
+    ]
+  },
+  {
+    "ISO8327A": [
+      "01",
+      "00"
+    ]
+  },
+  {
+    "ISO8327B": [
+      "01",
+      "00"
+    ]
+  },
+  {
+    "ISO8823": [
+      {
+        "User-Data": [
+          {
+            "Fully-Encoded-data": [
+              {
+                "PDV-list": [
+                  {
+                    "presentation-context-identifier": "03",
+                    "presentation-data-values": "MMS"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "MMS": [
+      {
+        "confirmed_RequestPDU": [
+          {
+            "invokeID": "0212",
+            "Read_Request": [
+              {
+                "VariableAccessSpecification": [
+                  {
+                    "listofVariable": [
+                      {
+                        "listofVariable": [
+                          {
+                            "VariableSpecification": [
+                              {
+                                "ObjectName": [
+                                  {
+                                    "domain-specific": [
+                                      {
+                                        "domainID": "5245463632304c4430"
+                                      },
+                                      {
+                                        "itemID": "4d56474150433124535424496e64312474"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "listofVariable": [
+                          {
+                            "VariableSpecification": [
+                              {
+                                "ObjectName": [
+                                  {
+                                    "domain-specific": [
+                                      {
+                                        "domainID": "5245463632304c4430"
+                                      },
+                                      {
+                                        "itemID": "4d56474150433124535424496e64312471"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "listofVariable": [
+                          {
+                            "VariableSpecification": [
+                              {
+                                "ObjectName": [
+                                  {
+                                    "domain-specific": [
+                                      {
+                                        "domainID": "5245463632304c4430"
+                                      },
+                                      {
+                                        "itemID": "4d56474150433124535424496e643124737456616c"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

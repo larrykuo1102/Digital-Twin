@@ -15,6 +15,7 @@
 
 # --------------------------End--------------------------
 
+
 import json
 
 
@@ -64,7 +65,6 @@ def ASN1_get_length(content):  # return length and rest of content
         tlv_length = int(first_byte, 16)
     elif (length_type == 2):
         byte_length = int(calculate_hex(first_byte)[1:], 2)  # a08'1'83
-        # print( byte_length )
         byte_length_content = ''
         for i in range(byte_length):
             second_byte, rest = getoneByte(rest)
@@ -129,7 +129,6 @@ def ISO8823_Parser(value: str, mms_data: list):
     mms_data.append(temp_dict)
     data, rest = ASN1_parser(value)
     if data['tag'] == '61':
-        print("ISO88232", data['tag'])
         templist = []
         temp_dict['User-Data'] = templist
         rest = ISO8823_User_Data(data['value'], templist)
@@ -265,7 +264,6 @@ def listOfAccessResult(value: str, mms_data: list):
     temp_list = []
     mms_data.append(temp_dict)
     data, rest = ASN1_parser(value)
-    print(data, "\n", rest)
     temp_dict['AccessResult'] = temp_list
     rest = AccessResult(data['value'], temp_list)
     while rest != "":
@@ -322,7 +320,10 @@ def variableListName(value: str, mms_data: list):
     mms_data.append(temp_dict)
 
     data, rest = ASN1_parser(value)
-    temp_dict['ObjectName'] = data['value']
+    if (data['tag'] == '80'):
+        temp_list = []
+        temp_dict['ObjectName'] = temp_list
+        ObjectName(value, temp_list)
     return rest
 
 
@@ -339,8 +340,10 @@ def ObjectName(value: str, mms_data: list):
         data, rest = ASN1_parser(rest)
         if (data['tag'] == '1a'):
             temp_list.append({"itemID": data['value']})
-    elif (data['tag'] == 'a0'):
-        pass
+    elif (data['tag'] == '80'):
+        temp_list = []
+        temp_dict['vmd-specific'] = data['value']
+
     return rest
 
 

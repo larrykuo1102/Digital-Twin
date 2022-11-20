@@ -10,8 +10,11 @@ from myParser import Parser as myParser
 def Read_and_Parse_Encapsulation(pkt):
     all_packet_data = []
     content = binascii.hexlify(bytes(pkt)).decode()
-
-    cotp_index = re.search('0300....02f080', content).span()  # search COTP
+    # print(content)
+    find_cotp = re.search('0300....02f080', content)  # search COTP
+    if (find_cotp == None):
+        return all_packet_data
+    cotp_index = find_cotp.span()
     content = content[cotp_index[0]:]
 
     start_index = 0
@@ -40,21 +43,31 @@ def Read_and_Parse_Encapsulation(pkt):
 
     rest, MMS = myParser(rest, "MMS")
     all_packet_data.append(MMS[0])
+    return all_packet_data
 
     print(json.dumps(all_packet_data, indent=2))
 
+all_packets = sniff(offline='situation1_morning_again.pcap',
+                    filter='tcp and dst host not 192.168.2.11 and dst host not 192.168.2.12 and src host not 192.168.2.11 and src host not 192.168.2.12')
 
 pkt = rdpcap('mms_cap1.pcapng')
 # print("1.", pkt[0])
 content = binascii.hexlify(bytes(pkt[0])).decode()
 # print("2.", content)
-Read_and_Parse_Encapsulation(pkt[0])
+for index, i in enumerate(all_packets):
+    # print("index", index)
+    output = Read_and_Parse_Encapsulation(i)
+    # print(output)
+    if (len(output) != 0):
+        with open('output_Data/packet_{0}.json'.format(str(index)), "w") as file:
+            print('output_Data/packet_{0}.json'.format(str(index)))
+            json.dump(output, file, indent=2)
 
 
 # a = Ether()/IP(dst='192.168.2.13')/TCP()/"test scapy by python"
 # sendp(a)
 # a = IP(dst='192.168.2.13')/TCP()/"test scapy by python"
-# pkt[0].show()
+# all_packets[0].show()
 # sendp(pkt[0])
 # for i in pkt:
 #     sendp(i)

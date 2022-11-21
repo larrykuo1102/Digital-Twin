@@ -4,6 +4,7 @@ import re
 
 from scapy.all import *
 
+from Compare import align
 from myParser import Parser as myParser
 
 
@@ -11,6 +12,7 @@ def Read_and_Parse_Encapsulation(pkt):
     all_packet_data = []
     content = binascii.hexlify(bytes(pkt)).decode()
     # print(content)
+    all_packet_data.append({'src_IP': pkt[27:31], 'dest_IP': pkt[31:35]})
     find_cotp = re.search('0300....02f080', content)  # search COTP
     if (find_cotp == None):
         return all_packet_data
@@ -47,21 +49,37 @@ def Read_and_Parse_Encapsulation(pkt):
 
     print(json.dumps(all_packet_data, indent=2))
 
-all_packets = sniff(offline='situation1_morning_again.pcap',
-                    filter='tcp and dst host not 192.168.2.11 and dst host not 192.168.2.12 and src host not 192.168.2.11 and src host not 192.168.2.12')
+realSystem = sniff(offline='s1-morning.pcap',
+                   filter='tcp')
 
-pkt = rdpcap('mms_cap1.pcapng')
-# print("1.", pkt[0])
-content = binascii.hexlify(bytes(pkt[0])).decode()
+DigitalTwins = sniff(offline='situation1_morning_again.pcap',
+                     filter='tcp')
 # print("2.", content)
-for index, i in enumerate(all_packets):
+realSystem_list = []
+DigitalTwins_list = []
+for index, i in enumerate(realSystem):
     # print("index", index)
     output = Read_and_Parse_Encapsulation(i)
-    # print(output)
     if (len(output) != 0):
-        with open('output_Data/packet_{0}.json'.format(str(index)), "w") as file:
-            print('output_Data/packet_{0}.json'.format(str(index)))
-            json.dump(output, file, indent=2)
+        realSystem_list.append(output[0])
+
+    # print(output)
+    # if (len(output) != 0): # 寫檔
+    #     with open('output_Data/packet_{0}.json'.format(str(index)), "w") as file:
+    #         print('output_Data/packet_{0}.json'.format(str(index)))
+    #         json.dump(output, file, indent=2)
+for index, i in enumerate(DigitalTwins):
+    # print("index", index)
+    output = Read_and_Parse_Encapsulation(i)
+    if (len(output) != 0):
+        DigitalTwins_list.append(output[0])
+
+chance = 3
+while (chance > 0):
+    DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
+    # compare
+    #   module lcs
+    pass
 
 
 # a = Ether()/IP(dst='192.168.2.13')/TCP()/"test scapy by python"

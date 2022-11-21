@@ -131,3 +131,4 @@ dmypy.json
 pyrightconfig.json
 toggletasks.json
 MMS_TEST
+output_data

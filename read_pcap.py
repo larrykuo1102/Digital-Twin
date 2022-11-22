@@ -12,7 +12,8 @@ def Read_and_Parse_Encapsulation(pkt):
     all_packet_data = {}
     content = binascii.hexlify(bytes(pkt)).decode()
     # print(content)
-    all_packet_data['IP'] = {'src_IP': content[54:62], 'dest_IP': content[62:70]}
+    all_packet_data['IP'] = {
+        'src_IP': content[54:62], 'dest_IP': content[62:70]}
     find_cotp = re.search('0300....02f080', content)  # search COTP
     if (find_cotp == None):
         return all_packet_data
@@ -49,6 +50,7 @@ def Read_and_Parse_Encapsulation(pkt):
 
     print(json.dumps(all_packet_data, indent=2))
 
+
 realSystem = sniff(offline='s1-morning.pcap',
                    filter='tcp')
 
@@ -76,12 +78,15 @@ for index, i in enumerate(DigitalTwins):
 
 chance = 3
 while (chance > 0):
-    print("Chance=", chance)
-    DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
-    assert Is_MMS_or_GOOSE(realSystem_list[0]) == Is_MMS_or_GOOSE(DigitalTwins_list[0])
-    assert Is_Confirmed_or_UnConfirmed(realSystem_list[0]) == Is_Confirmed_or_UnConfirmed(DigitalTwins_list[0])
-    assert Is_Read_or_Write(realSystem_list[0]) == Is_Read_or_Write(DigitalTwins_list[0])
+    realSystem_list, DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
+    # assert Is_MMS_or_GOOSE(realSystem_list[0]) == Is_MMS_or_GOOSE(DigitalTwins_list[0])
+    # assert Is_Confirmed_or_UnConfirmed(realSystem_list[0]) == Is_Confirmed_or_UnConfirmed(DigitalTwins_list[0])
+    # assert Is_Read_or_Write(realSystem_list[0]) == Is_Read_or_Write(DigitalTwins_list[0])
+    # assert Is_Request_or_Response(realSystem_list[0]) == Is_Request_or_Response(DigitalTwins_list[0])
+    print(DigitalTwins_list[0])
+    print(realSystem_list[0])
     chance -= 1
+    DigitalTwins_list = DigitalTwins_list[1:]
     # compare
     #   module lcs
     pass

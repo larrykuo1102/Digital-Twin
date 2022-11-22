@@ -5,39 +5,60 @@ def align(real_sys: list, digital_twins: list):
     # IP == true
     # Request or Response == true
     # read or Write == true
+    real_sys_shift = 0
     digital_twins_shift = 0
     isAlign = False
+
     while isAlign != True:
-        real_proto = Is_MMS_or_GOOSE(real_sys[0])
+
+        if digital_twins_shift == len(digital_twins) or real_sys_shift == len(real_sys):
+            break
+
+        real_proto = Is_MMS_or_GOOSE(real_sys[real_sys_shift])
+
+        if real_proto == None:
+            real_sys_shift += 1
+            continue
+
         digit_proto = Is_MMS_or_GOOSE(digital_twins[digital_twins_shift])
 
-        if digital_twins_shift == len(digital_twins):
-            break
         if real_proto == digit_proto:
-            real_IP = getIP(real_sys[0])
+            real_IP = getIP(real_sys[real_sys_shift])
             digit_IP = getIP(digital_twins[digital_twins_shift])
             if real_IP == digit_IP:
                 if real_proto == "MMS":
                     # confirmed or unconfirmed
-                    real_pdu = Is_Confirmed_or_UnConfirmed(real_sys[0])
-                    digit_pdu = Is_Confirmed_or_UnConfirmed(digital_twins[digital_twins_shift])
-                    if (real_pdu == digit_pdu) & (real_pdu != None):
+                    real_pdu = Is_Confirmed_or_UnConfirmed(
+                        real_sys[real_sys_shift])
+                    digit_pdu = Is_Confirmed_or_UnConfirmed(
+                        digital_twins[digital_twins_shift])
+                    if (real_pdu == digit_pdu) and (real_pdu != None):
                         if real_pdu == "unconfirmed":
                             # read or write
-                            real_re = Is_Read_or_Write(real_sys[0])
-                            digit_re = Is_Read_or_Write(digital_twins[digital_twins_shift])
-                            if (real_re == digit_re) & (real_re != None):
+                            real_re = Is_Read_or_Write(
+                                real_sys[real_sys_shift])
+                            digit_re = Is_Read_or_Write(
+                                digital_twins[digital_twins_shift])
+                            if (real_re == digit_re) and (real_re != None):
                                 isAlign = True
-                        else:
+                                break
+                        elif real_pdu == "confirmed":
                             # response or request
-                            real_re = Is_Request_or_Response(real_sys[0])
-                            digit_re = Is_Request_or_Response(digital_twins[digital_twins_shift])
-                            if (real_re == digit_re) & (real_re != None):
+                            real_re = Is_Request_or_Response(
+                                real_sys[real_sys_shift])
+                            digit_re = Is_Request_or_Response(
+                                digital_twins[digital_twins_shift])
+                            if (real_re == digit_re) and (real_re != None):
                                 # read or write
-                                real_re = Is_Read_or_Write(real_sys[0])
-                                digit_re = Is_Read_or_Write(digital_twins[digital_twins_shift])
-                                if (real_re == digit_re) & (real_re != None):
+                                real_re = Is_Read_or_Write(
+                                    real_sys[real_sys_shift])
+                                digit_re = Is_Read_or_Write(
+                                    digital_twins[digital_twins_shift])
+                                if (real_re == digit_re) and (real_re != None):
                                     isAlign = True
+                                    break
+                        else:
+                            pass
                 elif real_proto == "GOOSE":
                     pass
                 else:
@@ -45,20 +66,22 @@ def align(real_sys: list, digital_twins: list):
             pass
 
         digital_twins_shift += 1
-        pass
+        if digital_twins_shift == len(digital_twins):
+            real_sys_shift += 1
+            digital_twins_shift = 0
 
-    return digital_twins[digital_twins_shift:]
+    return real_sys[real_sys_shift:], digital_twins[digital_twins_shift:]
 
 
 def getIP(pkt: dict) -> dict:
-    pktlist = list(pkt.keys())
+    pktlist = list(pkt.values())
     return pktlist[0]
 
 
 def Is_MMS_or_GOOSE(pkt: dict):
     pktlist = list(pkt.keys())
     proto = pktlist[len(pktlist)-1]
-    if (proto == "MMS") | (proto == "GOOSE"):
+    if (proto == "MMS") or (proto == "GOOSE"):
         return proto
     else:
         return None
@@ -103,3 +126,7 @@ def Is_Read_or_Write(pkt: dict):
         return "Write"
     else:
         return None
+
+# dict1 = {"IP_src":"1234", "IP_dst":"5678"}
+# dict2 = {"IP_src":"1234", "IP_dst":"5678"}
+# assert dict1 == dict2

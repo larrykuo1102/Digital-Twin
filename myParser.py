@@ -190,7 +190,10 @@ def confirmed_RequestPDU(value: str, mms_data: list):
         temp_list = []
         temp_dict['Read_Request'] = temp_list
         rest = Read_Request(data['value'], temp_list)
-        pass
+    elif (data['tag'] == 'a6'):
+        temp_list = []
+        temp_dict['GetVariableAccessAttributes_Request'] = temp_list
+        rest = GetVariableAccessAttributes_Request(data['value'], temp_list)
 
     return rest
 
@@ -224,6 +227,14 @@ def Read_Response(value: str, mms_data: list):
     return rest
 
 
+def GetVariableAccessAttributes_Response(value: str, mms_data: list):
+    temp_dict = {}
+    temp_list = []
+    mms_data.append(temp_dict)
+    temp_dict['test'] = temp_list
+    # rest = listOfAccessResult(value, temp_list)
+
+    return rest
 def Read_Request(value: str, mms_data: list):
     temp_dict = {}
     mms_data.append(temp_dict)
@@ -233,6 +244,23 @@ def Read_Request(value: str, mms_data: list):
         temp_list = []
         temp_dict['VariableAccessSpecification'] = temp_list
         rest = VariableAccessSpecification(data['value'], temp_list)
+
+    return rest
+
+
+def GetVariableAccessAttributes_Request(value: str, mms_data: list):
+    temp_dict = {}
+    mms_data.append(temp_dict)
+    data, rest = ASN1_parser(value)
+
+    if (data['tag'] == 'a0'):
+        temp_list = []
+        temp_dict['ObjectName'] = temp_list
+        rest = ObjectName(data['value'], temp_list)
+    elif (data['tag'] == 'a1'):
+        temp_list = []
+        temp_dict['Address'] = temp_list
+        rest = ObjectName(data['value'], temp_list)
 
     return rest
 
@@ -335,11 +363,14 @@ def ObjectName(value: str, mms_data: list):
         temp_list = []
         temp_dict['domain-specific'] = temp_list
         data, rest = ASN1_parser(data['value'])
+        domain_specific_dict = {}
         if (data['tag'] == '1a'):
-            temp_list.append({"domainID": data['value']})
+            domain_specific_dict.update({"domainID": data['value']})
+            # temp_list.append()
         data, rest = ASN1_parser(rest)
         if (data['tag'] == '1a'):
-            temp_list.append({"itemID": data['value']})
+            domain_specific_dict.update({"itemID": data['value']})
+        temp_list.append(domain_specific_dict)
     elif (data['tag'] == '80'):
         temp_list = []
         temp_dict['vmd-specific'] = data['value']

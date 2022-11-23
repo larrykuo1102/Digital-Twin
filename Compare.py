@@ -126,6 +126,7 @@ def Is_Read_or_Write(pkt: dict):
     else:
         return None
 
+
 def Longest_Common_Subsequence(text1: str, text2: str) -> str:
 
     (m, n) = (len(text1), len(text2))
@@ -144,9 +145,102 @@ def Longest_Common_Subsequence(text1: str, text2: str) -> str:
 
     return dp[m][n]
 
-print(Longest_Common_Subsequence("abcde","ace"))
+
+print(Longest_Common_Subsequence("abcde", "ace"))
 print(Longest_Common_Subsequence("fafabcdef", "fadabc"))
 
 # dict1 = {"IP_src":"1234", "IP_dst":"5678"}
 # dict2 = {"IP_src":"1234", "IP_dst":"5678"}
 # assert dict1 == dict2
+
+
+def Is_Read_or_Write():
+    pass
+
+
+module_map = {
+    'MMS': [['confirmed_RequestPDU', 'confirmed_ResponsePDU', 'unconfirmed_PDU']],
+    'confirmed_RequestPDU':  ['invokeID', ['Write_Request', 'Read_Request', 'GetVariableAccessAttributes_Request']],
+    'confirmed_ResponsePDU': ['invokeID', ['Read_Response', 'Write_Response', 'GetVariableAccessAttributes_Response']],
+    'unconfirmed_PDU': ['informationReport'],
+    'Read_Request': ['VariableAccessSpecification'],
+    'Read_Response': ['listOfAccessResult'],
+    'Write_Request': ['VariableAccessSpecification', 'listofData'],
+    'Write_Response': ['VariableAccessSpecification'],
+    'GetVariableAccessAttributes_Request': ['ObjectName'],
+    'GetVariableAccessAttributes_Response': ['ObjectName'],
+    'VariableAccessSpecification': [['listofVariable', 'variableListName', 'listofVariables']],
+    'listofVariable': [['VariableSpecification', 'listofVariable']],
+    'listofVariables': [['VariableSpecification', 'listofVariable']],
+    'VariableSpecification': ['ObjectName'],
+    'listOfAccessResult': ['AccessResult'],
+    'variableListName': ['ObjectName'],
+    'ObjectName': [['domain-specific', 'vmd-specific']],
+    'domain-specific': ['domainID', 'itemID'],
+    'success': [['structure', 'boolean', 'bit-string', 'integer', 'unsigned', 'visible-string', 'binary-time', 'utc-time', 'utc-time']],
+    'structure': [['boolean', 'integer']],
+    'informationReport': ['VariableAccessSpecification', 'listOfAccessResult'],
+}
+
+
+def compare_MMS(twins: dict, module_name: str):  # parsered result
+    # 有沒有符合 module
+    check_valid: bool = True
+    # next_dict: dict = twins.get(module_name)
+    next_list: list = twins.get(module_name)
+    map_list = module_map.get(module_name)
+    print(module_name)
+    if (next_list != None and map_list != None):
+        # next_dict = next_list[0]
+
+        print(map_list)
+
+        for next_dict in next_list:
+
+            for neccessary in map_list:
+                check_neccessary: bool = False
+                if (isinstance(neccessary, list)):
+                    for each in neccessary:
+                        if (each in next_dict.keys()):  # if several module exsits one in twins' data -> keep check next level module
+                            check_neccessary = True
+                            if not compare_MMS(next_dict, each):
+                                check_valid = False
+                                assert False, f'module Error {module_name} {each}'
+                    if not check_neccessary:
+                        check_valid = False
+                else:
+                    if (neccessary in next_dict.keys()):  # if this module exsits one in twins' data -> keep check next level module
+                        if not compare_MMS(next_dict, neccessary):
+                            check_valid = False
+                            assert False, f'module Error {module_name} {neccessary}'
+                    else:
+                        check_valid = False
+                        assert False, f'module Error {neccessary} missed'
+    elif (map_list == None):
+        if (module_name == 'ObjectName'):
+            print('ObjectName similarity')
+            pass
+        elif (module_name == 'itemID'):
+            print('itemID similarity')
+            pass
+        elif (module_name == 'domainID'):
+            print('domainID similarity')
+            pass
+        elif (module_name == 'invokeID'):
+            print('invokeID similarity')
+            pass
+        return True
+    else:
+        check = False
+
+    if (check_valid == False):
+        return False
+
+    return True
+
+
+# compare_MMS(twins, "MMS")
+
+
+def compare_COTP():
+    pass

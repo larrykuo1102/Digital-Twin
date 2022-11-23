@@ -4,7 +4,7 @@ import re
 
 from scapy.all import *
 
-from Compare import align
+from Compare import align, compare_MMS
 from myParser import Parser as myParser
 
 
@@ -16,7 +16,7 @@ def Read_and_Parse_Encapsulation(pkt):
         'src_IP': content[54:62], 'dest_IP': content[62:70]}
     find_cotp = re.search('0300....02f080', content)  # search COTP
     if (find_cotp == None):
-        return all_packet_data
+        return {}
     cotp_index = find_cotp.span()
     content = content[cotp_index[0]:]
 
@@ -76,6 +76,22 @@ for index, i in enumerate(DigitalTwins):
     if (len(output) != 0):
         DigitalTwins_list.append(output)
 
+fail = 0
+fail_list = []
+for index, i in enumerate(DigitalTwins_list):
+    print(index)
+    try:
+        print(compare_MMS(i, 'MMS'))
+    except Exception as e:
+        print(e)
+        print(i)
+        fail += 1
+        fail_list.append(i)
+print(fail, fail/len(DigitalTwins_list))
+
+with open('packet_result.json', "w") as file:
+    json.dump(fail_list, file, indent=2)
+
 chance = 3
 while (chance > 0):
     try:
@@ -90,6 +106,7 @@ while (chance > 0):
 
     # compare
     #   module lcs
+    chance -= 1
     pass
 
 

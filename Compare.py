@@ -182,18 +182,23 @@ module_map = {
     'informationReport': ['VariableAccessSpecification', 'listOfAccessResult'],
 }
 
+input_module = []
+
 
 def compare_MMS(twins: dict, module_name: str):  # parsered result
+    if (module_name == 'MMS'):
+        input_module.clear()
     # 有沒有符合 module
     check_valid: bool = True
     # next_dict: dict = twins.get(module_name)
     next_list: list = twins.get(module_name)
     map_list = module_map.get(module_name)
-    print(module_name)
+    input_module.append(module_name)
+    # print(module_name)
     if (next_list != None and map_list != None):
         # next_dict = next_list[0]
 
-        print(map_list)
+        # print(map_list)
 
         for next_dict in next_list:
 
@@ -222,12 +227,14 @@ def compare_MMS(twins: dict, module_name: str):  # parsered result
             pass
         elif (module_name == 'itemID'):
             print('itemID similarity')
+            input_module.append(next_list)
             pass
         elif (module_name == 'domainID'):
+            input_module.append(next_list)
             print('domainID similarity')
             pass
         elif (module_name == 'invokeID'):
-            print('invokeID similarity')
+            # print('invokeID similarity')
             pass
         return True
     else:
@@ -236,7 +243,25 @@ def compare_MMS(twins: dict, module_name: str):  # parsered result
     if (check_valid == False):
         return False
 
-    return True
+    return input_module
+
+
+def get_itemID(module_list: list):
+    result = []
+    for i in range(len(module_list)):
+        if (module_list[i] == 'itemID'):
+            result.append(module_list[i+1])
+            i + 1
+    return result
+
+
+def get_domainID(module_list: list):
+    result = []
+    for i in range(len(module_list)):
+        if (module_list[i] == 'domainID'):
+            result.append(module_list[i+1])
+            i + 1
+    return result
 
 
 # compare_MMS(twins, "MMS")

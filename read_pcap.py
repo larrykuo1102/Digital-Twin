@@ -4,7 +4,7 @@ import re
 
 from scapy.all import *
 
-from Compare import align, compare_MMS
+from Compare import align, compare_MMS, get_domainID, get_itemID
 from myParser import Parser as myParser
 
 
@@ -48,7 +48,6 @@ def Read_and_Parse_Encapsulation(pkt):
     all_packet_data.update(MMS[0])
     return all_packet_data
 
-    print(json.dumps(all_packet_data, indent=2))
 
 
 realSystem = sniff(offline='s1-morning.pcap',
@@ -56,6 +55,10 @@ realSystem = sniff(offline='s1-morning.pcap',
 
 DigitalTwins = sniff(offline='situation1_morning_again.pcap',
                      filter='tcp')
+
+# pkt = rdpcap('DegitalTwins.pcap')
+# print("1.", all_packets[0])
+# content = binascii.hexlify(bytes(all_packets[0])).decode()
 # print("2.", content)
 realSystem_list = []
 DigitalTwins_list = []
@@ -65,11 +68,6 @@ for index, i in enumerate(realSystem):
     if (len(output) != 0):
         realSystem_list.append(output)
 
-    # print(output)
-    # if (len(output) != 0): # 寫檔
-    #     with open('output_Data/packet_{0}.json'.format(str(index)), "w") as file:
-    #         print('output_Data/packet_{0}.json'.format(str(index)))
-    #         json.dump(output, file, indent=2)
 for index, i in enumerate(DigitalTwins):
     # print("index", index)
     output = Read_and_Parse_Encapsulation(i)
@@ -81,12 +79,21 @@ fail_list = []
 for index, i in enumerate(DigitalTwins_list):
     print(index)
     try:
-        print(compare_MMS(i, 'MMS'))
+        digitaltwins_temp = compare_MMS(i, 'MMS')
+        realsystem_temp = compare_MMS(realSystem_list[index], 'MMS')
+
+        digitaltwins_itemID = get_itemID(digitaltwins_temp)
+        realsystem_itemID = get_itemID(realsystem_temp)
+
+        digitaltwins_domainID = get_domainID(digitaltwins_temp)
+        realsystem_domainID = get_domainID(realsystem_temp)
+        print('DigitalTwins:', digitaltwins_temp)
+        print('RealSystem:', realsystem_temp)
     except Exception as e:
         print(e)
         print(i)
         fail += 1
-        fail_list.append(i)
+        fail_list.append((e, i))
 print(fail, fail/len(DigitalTwins_list))
 
 with open('packet_result.json', "w") as file:

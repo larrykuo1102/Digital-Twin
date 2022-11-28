@@ -11,7 +11,7 @@ def Read_and_Parse_Encapsulation(pkt):
     content = binascii.hexlify(bytes(pkt)).decode()
     # print(content)
     all_packet_data['IP'] = {
-        'src_IP': content[54:62], 'dest_IP': content[62:70]}
+        'src_IP': content[52:60], 'dest_IP': content[60:68]}
     find_cotp = re.search('0300....02f080', content)  # search COTP
     if (find_cotp == None):
         return {}

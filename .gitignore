@@ -132,3 +132,4 @@ pyrightconfig.json
 toggletasks.json
 MMS_TEST
 output_data
+*_result.json

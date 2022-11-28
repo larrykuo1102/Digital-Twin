@@ -1,3 +1,4 @@
+import json
 
 
 def align(real_sys: list, digital_twins: list):
@@ -149,13 +150,11 @@ def Longest_Common_Subsequence(text1: str, text2: str) -> str:
     return dp[m][n]
 
 
-# print(Longest_Common_Subsequence("abcde", "ace"))
 # print(Longest_Common_Subsequence("fafabcdef", "fadabc"))
 
 # dict1 = {"IP_src":"1234", "IP_dst":"5678"}
 # dict2 = {"IP_src":"1234", "IP_dst":"5678"}
 # assert dict1 == dict2
-
 module_map = {
     'MMS': [['confirmed_RequestPDU', 'confirmed_ResponsePDU', 'unconfirmed_PDU']],
     'confirmed_RequestPDU':  ['invokeID', ['Write_Request', 'Read_Request', 'GetVariableAccessAttributes_Request']],
@@ -269,9 +268,12 @@ def get_domainID(module_list: list):
 # compare_MMS(twins, "MMS")
 def compare_MMS_Context(realSystem_list, DigitalTwins_list):
     chance = 3
+    chance_domainID = []
+    chance_itemID = []
+    chance_module = []
+    chance_summary = []
     while (chance > 0):
         try:
-            chance -= 1
 
             # align
             realSystem_list, DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
@@ -279,47 +281,81 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
             fail = 0
             fail_list = []
             all_itemID_similarity = 0.0
+            all_domainID_similarity = 0.0
+            all_module_similarity = 0.0
+
+            packet_length = len(DigitalTwins_list) if len(realSystem_list) > len(DigitalTwins_list) else len(realSystem_list)
+
             for real, digital in zip(realSystem_list, DigitalTwins_list):
                 try:
-                    digitaltwins_temp = compare_MMS_module(digital, 'MMS')
-                    realsystem_temp = compare_MMS_module(real, 'MMS')
-
+                    digitaltwins_temp = compare_MMS_module(digital, 'MMS').copy()
+                    realsystem_temp = compare_MMS_module(real, 'MMS').copy()
+                    all_module_similarity += 1
+                    # itemID similarity
                     digitaltwins_itemID = get_itemID(digitaltwins_temp)
                     realsystem_itemID = get_itemID(realsystem_temp)
                     itemID_similarity = 0.0
-
                     if len(realsystem_itemID) == 0 and len(digitaltwins_itemID) != 0:
                         all_itemID_similarity += 0
                     elif len(realsystem_itemID) != 0 and len(digitaltwins_itemID) != 0:
                         for real_itemID, digital_itemID in zip(realsystem_itemID, digitaltwins_itemID):
                             # LCS()
                             itemID_similarity += compare_itemID(real_itemID, digital_itemID)
-                            print(itemID_similarity, real_itemID, digital_itemID)
+                            # print(itemID_similarity, real_itemID, digital_itemID)
                         all_itemID_similarity += itemID_similarity/len(realsystem_itemID)
+                    elif len(realsystem_itemID) != 0 and len(digitaltwins_itemID) == 0:
+                        all_itemID_similarity += 0
                     else:
                         all_itemID_similarity += 1
+                    # domainID similarity
                     digitaltwins_domainID = get_domainID(digitaltwins_temp)
                     realsystem_domainID = get_domainID(realsystem_temp)
                     domain_LCS = 0
-                    for real_domainID, digital_domainID in zip(digitaltwins_domainID, realsystem_domainID):
-                        domain_LCS += len(Longest_Common_Subsequence(real_domainID, digital_domainID))
+
+                    if len(realsystem_domainID) == 0 and len(digitaltwins_domainID) != 0:
+                        domain_LCS += 0
+                    elif len(realsystem_domainID) != 0 and len(digitaltwins_domainID) != 0:
+                        for real_domainID, digital_domainID in zip(realsystem_domainID, digitaltwins_domainID):
+                            domain_LCS += len(Longest_Common_Subsequence(real_domainID, digital_domainID))/len(real_domainID)
+                            # print(domain_LCS, real_domainID, digital_domainID)
+                        all_domainID_similarity += domain_LCS/len(realsystem_domainID)
+                    elif len(realsystem_domainID) != 0 and len(digitaltwins_domainID) == 0:
+                        domain_LCS += 0
+                    else:
+                        all_domainID_similarity += 1
+
                     # print('DigitalTwins:', digitaltwins_temp)
                     # print('RealSystem:', realsystem_temp)
                 except Exception as e:
-                    # print(e)
+                    print(e)
                     fail += 1
                     fail_list.append(digital)
                     # all_itemID_similarity += 1
                     print('fail', fail)
 
-            # with open('packet_result.json', "w") as file:
-            #     json.dump(fail_list, file, indent=2)
+            with open(f'packet_{chance}_result.json', "w") as file:
+                json.dump(fail_list, file, indent=2)
             DigitalTwins_list = DigitalTwins_list[1:]
-            print('itemID similarity', all_itemID_similarity / len(realSystem_list), '%')
+            # print('itemID similarity', all_itemID_similarity / packet_length, '%')
+            # print('domainID similarity', all_domainID_similarity / packet_length, '%')
+            # print('module similarity', all_module_similarity/packet_length)
+            chance_itemID.append(all_itemID_similarity / packet_length)
+            chance_domainID.append(all_domainID_similarity / packet_length)
+            chance_module.append(all_module_similarity/packet_length)
+            summary_similarity = 5/7 * all_module_similarity/packet_length + 1/7 * \
+                all_itemID_similarity / packet_length + 1/7 * all_domainID_similarity / packet_length
+            chance_summary.append(summary_similarity)
+            all_itemID_similarity = 0.0
+            all_domainID_similarity = 0.0
+            all_module_similarity = 0.0
 
         except Exception as e:
             print(e)
         chance -= 1
+    print(f'{len(chance_itemID)} chances itemID', chance_itemID)
+    print(f'{len(chance_domainID)} chances domainID', chance_domainID)
+    print(f'{len(chance_module)} chances module', chance_module)
+    print('all similarity =', f'{len(chance_summary)}', chance_summary)
 
 
 def compare_COTP():

@@ -4,7 +4,7 @@ import re
 
 from scapy.all import *
 
-from Compare import Is_Confirmed_or_UnConfirmed, Is_MMS_or_GOOSE, Is_Read_or_Write, Is_Request_or_Response, align
+from Compare import align
 from myParser import Parser as myParser
 
 
@@ -78,15 +78,16 @@ for index, i in enumerate(DigitalTwins):
 
 chance = 3
 while (chance > 0):
-    realSystem_list, DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
-    # assert Is_MMS_or_GOOSE(realSystem_list[0]) == Is_MMS_or_GOOSE(DigitalTwins_list[0])
-    # assert Is_Confirmed_or_UnConfirmed(realSystem_list[0]) == Is_Confirmed_or_UnConfirmed(DigitalTwins_list[0])
-    # assert Is_Read_or_Write(realSystem_list[0]) == Is_Read_or_Write(DigitalTwins_list[0])
-    # assert Is_Request_or_Response(realSystem_list[0]) == Is_Request_or_Response(DigitalTwins_list[0])
-    print(DigitalTwins_list[0])
-    print(realSystem_list[0])
-    chance -= 1
-    DigitalTwins_list = DigitalTwins_list[1:]
+    try:
+        print(DigitalTwins_list[0])
+        print(realSystem_list[0])
+        chance -= 1
+        DigitalTwins_list = DigitalTwins_list[1:]
+        realSystem_list, DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
+        pass
+    except Exception as e:
+        pass
+
     # compare
     #   module lcs
     pass

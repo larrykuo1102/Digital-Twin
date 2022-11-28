@@ -113,7 +113,6 @@ def Is_Confirmed_or_UnConfirmed(pkt: dict):
 
 def Is_Read_or_Write(pkt: dict):
     tag = pkt.get("MMS")
-    assert tag != None
     tag = list(tag[0].values())[0]
     temp = list(tag[0].keys())
     if Is_Confirmed_or_UnConfirmed(pkt) == "unconfirmed":

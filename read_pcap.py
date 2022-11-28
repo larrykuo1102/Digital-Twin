@@ -1,10 +1,8 @@
 import binascii
-import json
 import re
 
 from scapy.all import *
 
-from Compare import align, compare_MMS, get_domainID, get_itemID
 from myParser import Parser as myParser
 
 
@@ -49,19 +47,6 @@ def Read_and_Parse_Encapsulation(pkt):
     return all_packet_data
 
 
-
-realSystem = sniff(offline='s1-morning.pcap',
-                   filter='tcp')
-
-DigitalTwins = sniff(offline='situation1_morning_again.pcap',
-                     filter='tcp')
-
-# pkt = rdpcap('DegitalTwins.pcap')
-# print("1.", all_packets[0])
-# content = binascii.hexlify(bytes(all_packets[0])).decode()
-# print("2.", content)
-
-
 def Parse_PCAP(pcapfile_scapy):
     result_list = []
     for index, i in enumerate(pcapfile_scapy):
@@ -69,53 +54,6 @@ def Parse_PCAP(pcapfile_scapy):
         if (len(output) != 0):
             result_list.append(output)
     return result_list
-
-
-realSystem_list = Parse_PCAP(realSystem)
-DigitalTwins_list = Parse_PCAP(DigitalTwins)
-
-fail = 0
-fail_list = []
-for index, i in enumerate(DigitalTwins_list):
-    print(index)
-    try:
-        digitaltwins_temp = compare_MMS(i, 'MMS')
-        realsystem_temp = compare_MMS(realSystem_list[index], 'MMS')
-
-        digitaltwins_itemID = get_itemID(digitaltwins_temp)
-        realsystem_itemID = get_itemID(realsystem_temp)
-
-        digitaltwins_domainID = get_domainID(digitaltwins_temp)
-        realsystem_domainID = get_domainID(realsystem_temp)
-        print('DigitalTwins:', digitaltwins_temp)
-        print('RealSystem:', realsystem_temp)
-    except Exception as e:
-        print(e)
-        print(i)
-        fail += 1
-        fail_list.append((e, i))
-print(fail, fail/len(DigitalTwins_list))
-
-with open('packet_result.json', "w") as file:
-    json.dump(fail_list, file, indent=2)
-
-chance = 3
-while (chance > 0):
-    try:
-        print(DigitalTwins_list[0])
-        print(realSystem_list[0])
-        chance -= 1
-        DigitalTwins_list = DigitalTwins_list[1:]
-        realSystem_list, DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
-        pass
-    except Exception as e:
-        pass
-
-    # compare
-    #   module lcs
-    chance -= 1
-    pass
-
 
 # a = Ether()/IP(dst='192.168.2.13')/TCP()/"test scapy by python"
 # sendp(a)

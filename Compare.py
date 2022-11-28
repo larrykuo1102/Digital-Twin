@@ -1,3 +1,6 @@
+import json
+
+
 def align(real_sys: list, digital_twins: list):
     # digital_twins_shift: int
     # isAlign: bool = False
@@ -146,8 +149,8 @@ def Longest_Common_Subsequence(text1: str, text2: str) -> str:
     return dp[m][n]
 
 
-print(Longest_Common_Subsequence("abcde", "ace"))
-print(Longest_Common_Subsequence("fafabcdef", "fadabc"))
+# print(Longest_Common_Subsequence("abcde", "ace"))
+# print(Longest_Common_Subsequence("fafabcdef", "fadabc"))
 
 # dict1 = {"IP_src":"1234", "IP_dst":"5678"}
 # dict2 = {"IP_src":"1234", "IP_dst":"5678"}
@@ -185,7 +188,7 @@ module_map = {
 input_module = []
 
 
-def compare_MMS(twins: dict, module_name: str):  # parsered result
+def compare_MMS_module(twins: dict, module_name: str):  # parsered result
     if (module_name == 'MMS'):
         input_module.clear()
     # 有沒有符合 module
@@ -208,14 +211,14 @@ def compare_MMS(twins: dict, module_name: str):  # parsered result
                     for each in neccessary:
                         if (each in next_dict.keys()):  # if several module exsits one in twins' data -> keep check next level module
                             check_neccessary = True
-                            if not compare_MMS(next_dict, each):
+                            if not compare_MMS_module(next_dict, each):
                                 check_valid = False
                                 assert False, f'module Error {module_name} {each}'
                     if not check_neccessary:
                         check_valid = False
                 else:
                     if (neccessary in next_dict.keys()):  # if this module exsits one in twins' data -> keep check next level module
-                        if not compare_MMS(next_dict, neccessary):
+                        if not compare_MMS_module(next_dict, neccessary):
                             check_valid = False
                             assert False, f'module Error {module_name} {neccessary}'
                     else:
@@ -265,6 +268,48 @@ def get_domainID(module_list: list):
 
 
 # compare_MMS(twins, "MMS")
+def compare_MMS_Context(realSystem_list, DigitalTwins_list):
+    chance = 3
+    while (chance > 0):
+        try:
+            chance -= 1
+            DigitalTwins_list = DigitalTwins_list[1:]
+
+            # align
+            realSystem_list, DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
+            # compare
+            fail = 0
+            fail_list = []
+            for real, digital in zip(realSystem_list, DigitalTwins_list):
+                try:
+                    digitaltwins_temp = compare_MMS_module(digital, 'MMS')
+                    realsystem_temp = compare_MMS_module(real, 'MMS')
+
+                    digitaltwins_itemID = get_itemID(digitaltwins_temp)
+                    realsystem_itemID = get_itemID(realsystem_temp)
+
+                    for real_itemID, digital_itemID in zip(realsystem_itemID, digitaltwins_itemID):
+                        # LCS()
+                        pass
+
+                    digitaltwins_domainID = get_domainID(digitaltwins_temp)
+                    realsystem_domainID = get_domainID(realsystem_temp)
+                    domain_LCS = 0
+                    for real_domainID, digital_domainID in zip(digitaltwins_domainID, realsystem_domainID):
+                        domain_LCS += len(Longest_Common_Subsequence(real_domainID, digital_domainID))
+                    print('DigitalTwins:', digitaltwins_temp)
+                    print('RealSystem:', realsystem_temp)
+                    pass
+                except Exception as e:
+                    # print(e)
+                    # print(digital)
+                    fail += 1
+                    fail_list.append((e, i))
+        except Exception as e:
+            print(e)
+        chance -= 1
+    with open('packet_result.json', "w") as file:
+        json.dump(fail_list, file, indent=2)
 
 
 def compare_COTP():

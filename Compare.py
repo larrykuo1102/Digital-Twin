@@ -17,6 +17,7 @@ def align(real_sys: list, digital_twins: list):
         real_proto = Is_MMS_or_GOOSE(real_sys[real_sys_shift])
 
         if real_proto == None:
+            print(real_sys[real_sys_shift])
             real_sys_shift += 1
             continue
 
@@ -126,6 +127,7 @@ def Is_Read_or_Write(pkt: dict):
     else:
         return None
 
+
 def Longest_Common_Subsequence(text1: str, text2: str) -> str:
 
     (m, n) = (len(text1), len(text2))
@@ -144,9 +146,37 @@ def Longest_Common_Subsequence(text1: str, text2: str) -> str:
 
     return dp[m][n]
 
-print(Longest_Common_Subsequence("abcde","ace"))
-print(Longest_Common_Subsequence("fafabcdef", "fadabc"))
 
-# dict1 = {"IP_src":"1234", "IP_dst":"5678"}
-# dict2 = {"IP_src":"1234", "IP_dst":"5678"}
-# assert dict1 == dict2
+# print(Longest_Common_Subsequence("abcde", "ace"))
+# print(Longest_Common_Subsequence("fafabcdef", "fadabc"))
+
+
+def compare_itemID(real_sys_ID: str, digit_twins_ID: str):
+    real_names = real_sys_ID.split("24")
+    twins_names = digit_twins_ID.split("24")
+    real_length = len(real_names)
+    twins_length = len(twins_names)
+    all_subq = 0
+    for idx in range(min(real_length, twins_length)):
+        subsq = Longest_Common_Subsequence(real_names[idx], twins_names[idx])
+        if idx == 0:
+            if len(subsq) < len(real_names[idx]):
+                all_subq += len(subsq)
+                break
+            else:
+                all_subq += len(subsq)
+    all_length = 0
+    for idx in real_names:
+        all_length += len(idx)
+    print(all_subq)
+    print(all_length)
+    return all_subq / all_length
+
+def compare_domainID(real_sys_ID: str, digit_twins_ID: str):
+    subsq = Longest_Common_Subsequence(real_sys_ID, digit_twins_ID)
+    return len(subsq) / len(real_sys_ID)
+
+print(compare_itemID('4c544747494f3524535424496e6430352474','4c544747494f3524535424496e64303524737456616c'))
+# print(compare_itemID("4d56474150433124535424496e64312474","4c544747494f3524535424496e64303524737456616c"))
+# print(compare_itemID("4d56474150433124535424496e643124737456616c","4c544747494f3524535424496e6430352474"))
+# print(compare_itemID("MVGAPC1$ST$Ind1$t", "LTGGIO5$ST$Ind05$q"))

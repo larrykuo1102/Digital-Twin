@@ -60,19 +60,19 @@ DigitalTwins = sniff(offline='situation1_morning_again.pcap',
 # print("1.", all_packets[0])
 # content = binascii.hexlify(bytes(all_packets[0])).decode()
 # print("2.", content)
-realSystem_list = []
-DigitalTwins_list = []
-for index, i in enumerate(realSystem):
-    # print("index", index)
-    output = Read_and_Parse_Encapsulation(i)
-    if (len(output) != 0):
-        realSystem_list.append(output)
 
-for index, i in enumerate(DigitalTwins):
-    # print("index", index)
-    output = Read_and_Parse_Encapsulation(i)
-    if (len(output) != 0):
-        DigitalTwins_list.append(output)
+
+def Parse_PCAP(pcapfile_scapy):
+    result_list = []
+    for index, i in enumerate(pcapfile_scapy):
+        output = Read_and_Parse_Encapsulation(i)
+        if (len(output) != 0):
+            result_list.append(output)
+    return result_list
+
+
+realSystem_list = Parse_PCAP(realSystem)
+DigitalTwins_list = Parse_PCAP(DigitalTwins)
 
 fail = 0
 fail_list = []

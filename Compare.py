@@ -343,6 +343,8 @@ def compare_itemID(real_sys_ID: str, digit_twins_ID: str):
                 break
             else:
                 all_subq += len(subsq)
+        else:
+            all_subq += len(subsq)
     all_length = 0
     for idx in real_names:
         all_length += len(idx)

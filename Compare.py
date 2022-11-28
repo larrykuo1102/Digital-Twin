@@ -126,6 +126,27 @@ def Is_Read_or_Write(pkt: dict):
     else:
         return None
 
+def Longest_Common_Subsequence(text1: str, text2: str) -> str:
+
+    (m, n) = (len(text1), len(text2))
+
+    dp = [["" for x in range(n+1)] for y in range(m+1)]
+
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if text1[i-1] == text2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + text1[i-1]
+            else:
+                if len(dp[i-1][j]) >= len(dp[i][j-1]):
+                    dp[i][j] = dp[i-1][j]
+                else:
+                    dp[i][j] = dp[i][j-1]
+
+    return dp[m][n]
+
+print(Longest_Common_Subsequence("abcde","ace"))
+print(Longest_Common_Subsequence("fafabcdef", "fadabc"))
+
 # dict1 = {"IP_src":"1234", "IP_dst":"5678"}
 # dict2 = {"IP_src":"1234", "IP_dst":"5678"}
 # assert dict1 == dict2

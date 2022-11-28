@@ -1,4 +1,3 @@
-import json
 
 
 def align(real_sys: list, digital_twins: list):
@@ -157,11 +156,6 @@ def Longest_Common_Subsequence(text1: str, text2: str) -> str:
 # dict2 = {"IP_src":"1234", "IP_dst":"5678"}
 # assert dict1 == dict2
 
-
-def Is_Read_or_Write():
-    pass
-
-
 module_map = {
     'MMS': [['confirmed_RequestPDU', 'confirmed_ResponsePDU', 'unconfirmed_PDU']],
     'confirmed_RequestPDU':  ['invokeID', ['Write_Request', 'Read_Request', 'GetVariableAccessAttributes_Request']],
@@ -170,7 +164,8 @@ module_map = {
     'Read_Request': ['VariableAccessSpecification'],
     'Read_Response': ['listOfAccessResult'],
     'Write_Request': ['VariableAccessSpecification', 'listofData'],
-    'Write_Response': ['VariableAccessSpecification'],
+    'Write_Response': ['Item'],
+    'Item': ['Write_success'],
     'GetVariableAccessAttributes_Request': ['ObjectName'],
     'GetVariableAccessAttributes_Response': ['ObjectName'],
     'VariableAccessSpecification': [['listofVariable', 'variableListName', 'listofVariables']],
@@ -181,7 +176,7 @@ module_map = {
     'variableListName': ['ObjectName'],
     'ObjectName': [['domain-specific', 'vmd-specific']],
     'domain-specific': ['domainID', 'itemID'],
-    'success': [['structure', 'boolean', 'bit-string', 'integer', 'unsigned', 'visible-string', 'binary-time', 'utc-time', 'utc-time']],
+    'success': [['structure', 'boolean', 'bit-string', 'integer', 'unsigned', 'visible-string', 'binary-time', 'utc-time']],
     'structure': [['boolean', 'integer']],
     'informationReport': ['VariableAccessSpecification', 'listOfAccessResult'],
 }
@@ -227,17 +222,20 @@ def compare_MMS_module(twins: dict, module_name: str):  # parsered result
                         assert False, f'module Error {neccessary} missed'
     elif (map_list == None):
         if (module_name == 'ObjectName'):
-            print('ObjectName similarity')
+            # print('ObjectName similarity')
             pass
         elif (module_name == 'itemID'):
-            print('itemID similarity')
+            # print('itemID similarity')
             input_module.append(next_list)
             pass
         elif (module_name == 'domainID'):
             input_module.append(next_list)
-            print('domainID similarity')
+            # print('domainID similarity')
             pass
         elif (module_name == 'invokeID'):
+            # print('invokeID similarity')
+            pass
+        elif (module_name == 'Write_success'):
             # print('invokeID similarity')
             pass
         return True
@@ -274,13 +272,13 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
     while (chance > 0):
         try:
             chance -= 1
-            DigitalTwins_list = DigitalTwins_list[1:]
 
             # align
             realSystem_list, DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
             # compare
             fail = 0
             fail_list = []
+            all_itemID_similarity = 0.0
             for real, digital in zip(realSystem_list, DigitalTwins_list):
                 try:
                     digitaltwins_temp = compare_MMS_module(digital, 'MMS')
@@ -288,29 +286,40 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
 
                     digitaltwins_itemID = get_itemID(digitaltwins_temp)
                     realsystem_itemID = get_itemID(realsystem_temp)
+                    itemID_similarity = 0.0
 
-                    for real_itemID, digital_itemID in zip(realsystem_itemID, digitaltwins_itemID):
-                        # LCS()
-                        pass
-
+                    if len(realsystem_itemID) == 0 and len(digitaltwins_itemID) != 0:
+                        all_itemID_similarity += 0
+                    elif len(realsystem_itemID) != 0 and len(digitaltwins_itemID) != 0:
+                        for real_itemID, digital_itemID in zip(realsystem_itemID, digitaltwins_itemID):
+                            # LCS()
+                            itemID_similarity += compare_itemID(real_itemID, digital_itemID)
+                            print(itemID_similarity, real_itemID, digital_itemID)
+                        all_itemID_similarity += itemID_similarity/len(realsystem_itemID)
+                    else:
+                        all_itemID_similarity += 1
                     digitaltwins_domainID = get_domainID(digitaltwins_temp)
                     realsystem_domainID = get_domainID(realsystem_temp)
                     domain_LCS = 0
                     for real_domainID, digital_domainID in zip(digitaltwins_domainID, realsystem_domainID):
                         domain_LCS += len(Longest_Common_Subsequence(real_domainID, digital_domainID))
-                    print('DigitalTwins:', digitaltwins_temp)
-                    print('RealSystem:', realsystem_temp)
-                    pass
+                    # print('DigitalTwins:', digitaltwins_temp)
+                    # print('RealSystem:', realsystem_temp)
                 except Exception as e:
                     # print(e)
-                    # print(digital)
                     fail += 1
-                    fail_list.append((e, i))
+                    fail_list.append(digital)
+                    # all_itemID_similarity += 1
+                    print('fail', fail)
+
+            # with open('packet_result.json', "w") as file:
+            #     json.dump(fail_list, file, indent=2)
+            DigitalTwins_list = DigitalTwins_list[1:]
+            print('itemID similarity', all_itemID_similarity / len(realSystem_list), '%')
+
         except Exception as e:
             print(e)
         chance -= 1
-    with open('packet_result.json', "w") as file:
-        json.dump(fail_list, file, indent=2)
 
 
 def compare_COTP():
@@ -337,14 +346,11 @@ def compare_itemID(real_sys_ID: str, digit_twins_ID: str):
     all_length = 0
     for idx in real_names:
         all_length += len(idx)
-    print(all_subq)
-    print(all_length)
+    # print(all_subq)
+    # print(all_length)
     return all_subq / all_length
 
 
 def compare_domainID(real_sys_ID: str, digit_twins_ID: str):
     subsq = Longest_Common_Subsequence(real_sys_ID, digit_twins_ID)
     return len(subsq) / len(real_sys_ID)
-
-
-print(compare_itemID('4c544747494f3524535424496e6430352474', '4c544747494f3524535424496e64303524737456616c'))

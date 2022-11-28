@@ -16,9 +16,6 @@
 # --------------------------End--------------------------
 
 
-import json
-
-
 class _Parser():
     MMS_data = []
     rest_content = ''
@@ -223,6 +220,20 @@ def Read_Response(value: str, mms_data: list):
     mms_data.append(temp_dict)
     temp_dict['listOfAccessResult'] = temp_list
     rest = listOfAccessResult(value, temp_list)
+
+    return rest
+
+
+def Write_Response(value: str, mms_data: list):
+    temp_dict = {}
+    temp_list = []
+    mms_data.append(temp_dict)
+    temp_dict['Item'] = temp_list
+    data, rest = ASN1_parser(value)
+    if data['value'] == '':
+        temp_list.append({'Write_success': '01'})
+    else:
+        temp_list.append({'Write_success': data['value']})
 
     return rest
 
@@ -450,10 +461,14 @@ def confirmed_ResponsePDU(value: str, mms_data: list):
         temp_dict['invokeID'] = data['value']
 
     data, rest = ASN1_parser(rest)
-    if (data['tag'] == 'a4'):  # read
+    if (data['tag'] == 'a4'):  # read response
         temp_list = []
         temp_dict['Read_Response'] = temp_list
         rest = Read_Response(data['value'], temp_list)
+    elif (data['tag'] == 'a5'):  # write response
+        temp_list = []
+        temp_dict['Write_Response'] = temp_list
+        rest = Write_Response(data['value'], temp_list)
     # elif (data['tag'] == 'a6'):
     #     temp_list = []
     #     temp_dict['GetVariableAccessAttributes_Response'] = temp_list
@@ -503,9 +518,9 @@ def Parser(content: str, protocol: str) -> list:
 # test_input = "a01ca11a0202222aa414a11291086322a1dd92b020bf8403030000830100"
 # test_input = "a081c6a381c3a081c0a1058003525054a081b68a1453454c3735314346472f4c4c4e30245250244d588403067880860200f78c06014540d337398a1753454c3735314346472f4c4c4e302444617461536574318601018403010004a268a212850101840303000091086322a1dd92b020bfa212830100840303000091086322a1dd92b020bfa21684020640840303000091086322be4389fbe7bf830100a212830100840303000091086322a1dd92b020bfa212830100840303000091086322a1dd92b020bf84020240 "
 
-test_input = "a0610203049f06a55aa0273025a023a1211a0a5245463632304354524c1a134342435357493124434f24506f732453424f77a02fa22d830101a214850103890f454c495053452d49454336313835308601069108000000000000000a83010084020600"
-parsed = json.dumps(Parser(test_input, "MMS")[1], indent=2)
-print(parsed)
+# test_input = "a1090203049f06a502810000"
+# parsed = json.dumps(Parser(test_input, "MMS")[1], indent=2)
+# print(parsed)
 
 # test_input = "a050020167a54ba0273025a023a1211a0a5245463632304354524c1a134443435357493124434f24506f73244f706572a020a21e830101a20585010089008601029108637353cd7ba5e30083010084020600"
 # ISOresponse = Parser(test_input, "ISO8823")

@@ -1,7 +1,6 @@
-from scapy.all import *
-
 from Compare import compare_MMS_Context
 from read_pcap import Parse_PCAP
+from scapy.all import *
 
 
 def Output_frequecy_and_time_gap(result):

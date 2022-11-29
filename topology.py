@@ -3,6 +3,8 @@ import binascii
 
 from scapy.all import *
 
+from time_lu import find_accuray_mms
+
 
 def find_mms_src_ip(pkt):
     path = 'output.txt'
@@ -88,3 +90,4 @@ pkt1 = sniff(offline="s1-morning.pcap", filter="tcp")
 pkt2 = sniff(offline="situation1_morning_again.pcap", filter="tcp")
 
 compare_similarity(pkt1, pkt2)
+find_accuray_mms(pkt1, pkt2)

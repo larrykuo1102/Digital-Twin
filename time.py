@@ -9,6 +9,8 @@ def caculate_time(real, digital):  # 計算所有時間
     real_time_gap = []
     digital_time_gap = []
     gap = []
+    total_gap = 0
+    real_total_gap = 0
     for pkt in real:
         real_time.append(pkt.time)
     for pkt in digital:
@@ -16,23 +18,34 @@ def caculate_time(real, digital):  # 計算所有時間
     # print(real_time[0])
     # print(digital_time[0])
     for n in range(0, len(real_time)-1):
+        real_total_gap = real_total_gap+(abs(real_time[n+1]-real_time[n]))
         real_time_gap.append(real_time[n+1]-real_time[n])
-    # print(real_time_gap[5])
+    real_average_gap = real_total_gap/len(real_time)
+    print(real_average_gap)
     for n in range(0, len(digital_time)-1):
         digital_time_gap.append(digital_time[n+1]-digital_time[n])
     # print(digital_time_gap[5])
     if (len(real_time) > len(digital_time)):
         for n in range(0, len(digital_time)-1):
+            total_gap = total_gap+(abs(digital_time_gap[n]-real_time_gap[n]))
             gap.append(abs(digital_time_gap[n]-real_time_gap[n]))
+        average_gap = total_gap/(len(digital_time)-2)
     else:
         for n in range(0, len(real_time)-1):
+            total_gap = total_gap+(abs(digital_time_gap[n]-real_time_gap[n]))
             gap.append(abs(digital_time_gap[n]-real_time_gap[n]))
-    # print(gap[5])
+        average_gap = total_gap/(len(digital_time)-2)
+    print("accuraywwwwwwww:", 100-((abs(average_gap-real_average_gap))/real_average_gap)*100, "%")
+    # print("5555")
+    # print(total_gap)
+    # print(float(average_gap))
+    # print(gap)
+    # print(type(average_gap))
     a = 0
     b = 0
     for n in range(0, len(gap)):
         b = b+1
-        if (gap[n] < 0.9):
+        if (gap[n] < float(average_gap)+float(average_gap)*0.5):
             a = a+1
     time_accuray = (a/b)*100
     #print("time accuray:", (a/b)*100, "%")
@@ -52,29 +65,37 @@ def caculate_time2(real, digital, number1, number2):  # 計算時間在mms numbe
     real_time_gap = []
     digital_time_gap = []
     gap = []
+    total_gap = 0
+    real_total_gap = 0
     for pkt in real:
         real_time.append(pkt.time)
     # print(real_time[len(real_time)-1])
     for pkt in digital:
         digital_time.append(pkt.time)
     for n in range(0, len(number1)-1):
+        real_total_gap = real_total_gap+(abs(real_time[(number1[n])+1]-real_time[(number1[n])]))
         real_time_gap.append(real_time[(number1[n])+1]-real_time[(number1[n])])
+    real_average_gap = real_total_gap/len(real_time)
     # print(real_time_gap[5])
     for n in range(0, len(number2)-1):
         digital_time_gap.append(digital_time[number2[n]+1]-digital_time[number2[n]])
     # print(digital_time_gap[5])
     if (len(number1) > len(number2)):
         for n in range(0, len(number2)-1):
+            total_gap = total_gap+(abs(digital_time_gap[n]-real_time_gap[n]))
             gap.append(abs(digital_time_gap[n]-real_time_gap[n]))
+        average_gap = total_gap/(len(number2)-2)
     else:
         for n in range(0, len(number2)-1):
+            total_gap = total_gap+(abs(digital_time_gap[n]-real_time_gap[n]))
             gap.append(abs(digital_time_gap[n]-real_time_gap[n]))
-    # print(gap[5])
+        average_gap = total_gap/(len(number1)-2)
+    # print(average_gap)
     a = 0
     b = 0
     for n in range(0, len(gap)):
         b = b+1
-        if (gap[n] < 0.05):
+        if (gap[n] < float(average_gap)+float(average_gap)*0.1):
             a = a+1
     time_accuray = (a/b)*100
     time_gap_real = real_time[len(real_time)-1]-real_time[0]

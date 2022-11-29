@@ -1,4 +1,5 @@
 import json
+from re import match
 
 
 def align(real_sys: list, digital_twins: list):
@@ -117,6 +118,7 @@ def Is_Confirmed_or_UnConfirmed(pkt: dict):
 
 def Is_Read_or_Write(pkt: dict):
     tag = pkt.get("MMS")
+    assert tag != None
     tag = list(tag[0].values())[0]
     temp = list(tag[0].keys())
     if Is_Confirmed_or_UnConfirmed(pkt) == "unconfirmed":
@@ -204,7 +206,8 @@ def compare_MMS_module(twins: dict, module_name: str):  # parsered result
                 check_neccessary: bool = False
                 if (isinstance(neccessary, list)):
                     for each in neccessary:
-                        if (each in next_dict.keys()):  # if several module exsits one in twins' data -> keep check next level module
+                        # if several module exsits one in twins' data -> keep check next level module
+                        if (each in next_dict.keys()):
                             check_neccessary = True
                             if not compare_MMS_module(next_dict, each):
                                 check_valid = False
@@ -212,7 +215,8 @@ def compare_MMS_module(twins: dict, module_name: str):  # parsered result
                     if not check_neccessary:
                         check_valid = False
                 else:
-                    if (neccessary in next_dict.keys()):  # if this module exsits one in twins' data -> keep check next level module
+                    # if this module exsits one in twins' data -> keep check next level module
+                    if (neccessary in next_dict.keys()):
                         if not compare_MMS_module(next_dict, neccessary):
                             check_valid = False
                             assert False, f'module Error {module_name} {neccessary}'
@@ -278,7 +282,8 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
         try:
 
             # align
-            realSystem_list, DigitalTwins_list = align(realSystem_list, DigitalTwins_list)
+            realSystem_list, DigitalTwins_list = align(
+                realSystem_list, DigitalTwins_list)
             # compare
             fail = 0
             fail_list = []
@@ -288,11 +293,13 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
             all_module_similarity = 0.0
             all_itemID_count.update({"RealSystem": 0, "DigitalTwins": 0})
 
-            packet_length = len(DigitalTwins_list) if len(realSystem_list) > len(DigitalTwins_list) else len(realSystem_list)
+            packet_length = len(DigitalTwins_list) if len(realSystem_list) > len(
+                DigitalTwins_list) else len(realSystem_list)
 
             for real, digital in zip(realSystem_list, DigitalTwins_list):
                 try:
-                    digitaltwins_temp = compare_MMS_module(digital, 'MMS').copy()
+                    digitaltwins_temp = compare_MMS_module(
+                        digital, 'MMS').copy()
                     realsystem_temp = compare_MMS_module(real, 'MMS').copy()
                     all_module_similarity += 1
 
@@ -307,9 +314,11 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
                     elif len(realsystem_itemID) != 0 and len(digitaltwins_itemID) != 0:
                         for real_itemID, digital_itemID in zip(realsystem_itemID, digitaltwins_itemID):
                             # LCS()
-                            itemID_similarity += compare_itemID(real_itemID, digital_itemID)
+                            itemID_similarity += compare_itemID(
+                                real_itemID, digital_itemID)
                             # print(itemID_similarity, real_itemID, digital_itemID)
-                        all_itemID_similarity += itemID_similarity/len(realsystem_itemID)
+                        all_itemID_similarity += itemID_similarity / \
+                            len(realsystem_itemID)
                     elif len(realsystem_itemID) != 0 and len(digitaltwins_itemID) == 0:
                         all_itemID_similarity += 0
                     else:
@@ -324,9 +333,11 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
                         domain_LCS += 0
                     elif len(realsystem_domainID) != 0 and len(digitaltwins_domainID) != 0:
                         for real_domainID, digital_domainID in zip(realsystem_domainID, digitaltwins_domainID):
-                            domain_LCS += len(Longest_Common_Subsequence(real_domainID, digital_domainID))/len(real_domainID)
+                            domain_LCS += len(Longest_Common_Subsequence(
+                                real_domainID, digital_domainID))/len(real_domainID)
                             # print(domain_LCS, real_domainID, digital_domainID)
-                        all_domainID_similarity += domain_LCS/len(realsystem_domainID)
+                        all_domainID_similarity += domain_LCS / \
+                            len(realsystem_domainID)
                     elif len(realsystem_domainID) != 0 and len(digitaltwins_domainID) == 0:
                         domain_LCS += 0
                     else:
@@ -351,7 +362,8 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
             chance_domainID.append(all_domainID_similarity / packet_length)
             chance_module.append(all_module_similarity/packet_length)
             summary_similarity = 5/7 * all_module_similarity/packet_length + 1/7 * \
-                all_itemID_similarity / packet_length + 1/7 * all_domainID_similarity / packet_length
+                all_itemID_similarity / packet_length + 1 / \
+                7 * all_domainID_similarity / packet_length
             chance_summary.append(summary_similarity)
             chance_itemID_count.append(all_itemID_count.copy())
 
@@ -406,3 +418,205 @@ def compare_itemID(real_sys_ID: str, digit_twins_ID: str):
 def compare_domainID(real_sys_ID: str, digit_twins_ID: str):
     subsq = Longest_Common_Subsequence(real_sys_ID, digit_twins_ID)
     return len(subsq) / len(real_sys_ID)
+
+
+def get_time(pkt: dict) -> float:
+    time = pkt.get('time')
+    assert time != None
+    return float(time)
+
+
+def get_response_count(pktlist: list, elapsed=0.0):
+    total = 0
+    begin = 0.0
+    if elapsed == 0.0:
+        for value in pktlist:
+            if Is_Request_or_Response(value) == "Response":
+                total += 1
+    else:
+        for value in pktlist:
+            if Is_Request_or_Response(value) == "Response":
+                total += 1
+                if total == 1:
+                    begin = get_time(value)
+                else:
+                    if get_time(value) > begin + elapsed:
+                        total -= 1
+                        break
+                    elif get_time(value) == begin + elapsed:
+                        break
+    return total
+
+
+def get_request_count(pktlist: list, elapsed=0.0):
+    total = 0
+    begin = 0.0
+    if elapsed == 0.0:
+        for value in pktlist:
+            if Is_Request_or_Response(value) == "Request":
+                total += 1
+    else:
+        for value in pktlist:
+            if Is_Request_or_Response(value) == "Request":
+                total += 1
+                if total == 1:
+                    begin = get_time(value)
+                else:
+                    if get_time(value) > begin + elapsed:
+                        total -= 1
+                        break
+                    elif get_time(value) == begin + elapsed:
+                        break
+    return total
+
+
+def get_confirmed_count(pktlist: list, elapsed=0.0):
+    total = 0
+    begin = 0.0
+    if elapsed == 0.0:
+        for value in pktlist:
+            if Is_Confirmed_or_UnConfirmed(value) == "confirmed":
+                total += 1
+    else:
+        for value in pktlist:
+            if Is_Confirmed_or_UnConfirmed(value) == "confirmed":
+                total += 1
+                if total == 1:
+                    begin = get_time(value)
+                else:
+                    if get_time(value) > begin + elapsed:
+                        total -= 1
+                        break
+                    elif get_time(value) == begin + elapsed:
+                        break
+    return total
+
+
+def get_unconfirmed_count(pktlist: list, elapsed=0.0):
+    total = 0
+    begin = 0.0
+    if elapsed == 0.0:
+        for value in pktlist:
+            if Is_Confirmed_or_UnConfirmed(value) == "unconfirmed":
+                total += 1
+    else:
+        for value in pktlist:
+            if Is_Confirmed_or_UnConfirmed(value) == "unconfirmed":
+                total += 1
+                if total == 1:
+                    begin = get_time(value)
+                else:
+                    if get_time(value) > begin + elapsed:
+                        total -= 1
+                        break
+                    elif get_time(value) == begin + elapsed:
+                        break
+    return total
+
+
+def get_response_elapsed(pktlist: list):
+    count = 0
+    begin = 0.0
+    end = 0.0
+    for value in pktlist:
+        if Is_Request_or_Response(value) == "Response":
+            if count == 0:
+                begin = get_time(value)
+            else:
+                end = get_time(value)
+            count += 1
+    return end - begin
+
+
+def get_request_elapsed(pktlist: list):
+    count = 0
+    begin = 0.0
+    end = 0.0
+    for value in pktlist:
+        if Is_Request_or_Response(value) == "Request":
+            if count == 0:
+                begin = get_time(value)
+            else:
+                end = get_time(value)
+            count += 1
+    return end - begin
+
+
+def get_confirmed_elapsed(pktlist: list):
+    count = 0
+    begin = 0.0
+    end = 0.0
+    for value in pktlist:
+        if Is_Confirmed_or_UnConfirmed(value) == "confirmed":
+            if count == 0:
+                begin = get_time(value)
+            else:
+                end = get_time(value)
+            count += 1
+    return end - begin
+
+
+def get_unconfirmed_elapsed(pktlist: list):
+    count = 0
+    begin = 0.0
+    end = 0.0
+    for value in pktlist:
+        if Is_Confirmed_or_UnConfirmed(value) == "unconfirmed":
+            if count == 0:
+                begin = get_time(value)
+            else:
+                end = get_time(value)
+            count += 1
+    return end - begin
+
+
+def compare_confirmed_count(real_sys_list: list, Digit_twins_list: list):
+    real_elapsed = get_confirmed_elapsed(real_sys_list)
+    twins_elapsed = get_confirmed_elapsed(Digit_twins_list)
+    if real_elapsed >= twins_elapsed:
+        real_count = get_confirmed_count(real_sys_list, twins_elapsed)
+        twins_count = get_confirmed_count(Digit_twins_list, twins_elapsed)
+    else:
+        real_count = get_confirmed_count(real_sys_list, real_elapsed)
+        twins_count = get_confirmed_count(Digit_twins_list, real_elapsed)
+
+    return 1 - abs(real_count-twins_count) / real_count
+
+
+def compare_unconfirmed_count(real_sys_list: list, Digit_twins_list: list):
+    real_elapsed = get_unconfirmed_elapsed(real_sys_list)
+    twins_elapsed = get_confirmed_elapsed(Digit_twins_list)
+    if real_elapsed >= twins_elapsed:
+        real_count = get_confirmed_count(real_sys_list, twins_elapsed)
+        twins_count = get_confirmed_count(Digit_twins_list, twins_elapsed)
+    else:
+        real_count = get_confirmed_count(real_sys_list, real_elapsed)
+        twins_count = get_confirmed_count(Digit_twins_list, real_elapsed)
+
+    return 1 - abs(real_count-twins_count) / real_count
+
+
+def compare_request_count(real_sys_list: list, Digit_twins_list: list):
+    real_elapsed = get_request_elapsed(real_sys_list)
+    twins_elapsed = get_request_elapsed(Digit_twins_list)
+    if real_elapsed >= twins_elapsed:
+        real_count = get_request_count(real_sys_list, twins_elapsed)
+        twins_count = get_request_count(Digit_twins_list, twins_elapsed)
+    else:
+        real_count = get_request_count(real_sys_list, real_elapsed)
+        twins_count = get_request_count(Digit_twins_list, real_elapsed)
+
+    return 1 - abs(real_count-twins_count) / real_count
+
+
+def compare_response_count(real_sys_list: list, Digit_twins_list: list):
+    real_elapsed = get_response_elapsed(real_sys_list)
+    twins_elapsed = get_response_elapsed(Digit_twins_list)
+    if real_elapsed >= twins_elapsed:
+        real_count = get_response_count(real_sys_list, twins_elapsed)
+        twins_count = get_response_count(Digit_twins_list, twins_elapsed)
+    else:
+        real_count = get_response_count(real_sys_list, real_elapsed)
+        twins_count = get_response_count(Digit_twins_list, real_elapsed)
+
+    return 1 - abs(real_count-twins_count) / real_count

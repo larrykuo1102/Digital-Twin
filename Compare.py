@@ -340,13 +340,13 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
                     # print('DigitalTwins:', digitaltwins_temp)
                     # print('RealSystem:', realsystem_temp)
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     fail += 1
                     fail_list.append(digital)
                     # all_itemID_similarity += 1
-                    print('fail', fail)
+                    # print('fail', fail)
 
-            with open(f'packet_{chance}_result.json', "w") as file:
+            with open(f'Compare_MMS_Context/packet_{chance}_result.json', "w") as file:
                 json.dump(fail_list, file, indent=2)
             DigitalTwins_list = DigitalTwins_list[1:]
             # print('itemID similarity', all_itemID_similarity / packet_length, '%')
@@ -364,12 +364,20 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
         except Exception as e:
             print(e)
         chance -= 1
-    print(f'{len(chance_itemID)} chances itemID', chance_itemID)
-    print(f'{len(chance_domainID)} chances domainID', chance_domainID)
-    print(f'{len(chance_module)} chances module', chance_module)
-    print(f'{len(chance_module)} chances itemID_count', chance_itemID_count)
-    print(f'{len(chance_module)} chances domainID_count', chance_domainID_count)
-    print('all similarity =', chance_summary)
+    # print(f'{len(chance_itemID)} chances itemID', chance_itemID)
+    # print(f'{len(chance_domainID)} chances domainID', chance_domainID)
+    # print(f'{len(chance_module)} chances module', chance_module)
+    # print(f'{len(chance_module)} chances itemID_count', chance_itemID_count)
+    # print(f'{len(chance_module)} chances domainID_count', chance_domainID_count)
+    # print('all similarity =', chance_summary)
+    return {
+        'itemID': chance_itemID,
+        'domainID': chance_domainID,
+        'module': chance_module,
+        'itemID_count': chance_itemID_count,
+        'domainID_count': chance_domainID_count,
+        'summary': chance_summary
+    }
 
 
 def compare_COTP():

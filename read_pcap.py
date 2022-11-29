@@ -13,7 +13,7 @@ def Read_and_Parse_Encapsulation(pkt):
 
     all_packet_data['IP'] = {
         'src_IP': content[52:60], 'dest_IP': content[60:68]}
-    all_packet_data['time'] = pkt.time
+    all_packet_data['time'] = f'{pkt.time}'
     find_cotp = re.search('0300....02f080', content)  # search COTP
     if (find_cotp == None):
         return {}

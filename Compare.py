@@ -272,6 +272,10 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
     chance_itemID = []
     chance_module = []
     chance_summary = []
+    chance_itemID_count = []
+    chance_domainID_count = []
+    all_itemID_count = {"RealSystem": 0, "DigitalTwins": 0}
+    all_domainID_count = {"RealSystem": 0, "DigitalTwins": 0}
     while (chance > 0):
         try:
 
@@ -280,9 +284,12 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
             # compare
             fail = 0
             fail_list = []
+            # initial
             all_itemID_similarity = 0.0
             all_domainID_similarity = 0.0
             all_module_similarity = 0.0
+            all_itemID_count.update({"RealSystem": 0, "DigitalTwins": 0})
+            all_domainID_count.update({"RealSystem": 0, "DigitalTwins": 0})
 
             packet_length = len(DigitalTwins_list) if len(realSystem_list) > len(DigitalTwins_list) else len(realSystem_list)
 
@@ -291,9 +298,12 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
                     digitaltwins_temp = compare_MMS_module(digital, 'MMS').copy()
                     realsystem_temp = compare_MMS_module(real, 'MMS').copy()
                     all_module_similarity += 1
+
                     # itemID similarity
                     digitaltwins_itemID = get_itemID(digitaltwins_temp)
                     realsystem_itemID = get_itemID(realsystem_temp)
+                    all_itemID_count['RealSystem'] += len(realsystem_itemID)
+                    all_itemID_count['DigitalTwins'] += len(digitaltwins_itemID)
                     itemID_similarity = 0.0
                     if len(realsystem_itemID) == 0 and len(digitaltwins_itemID) != 0:
                         all_itemID_similarity += 0
@@ -307,9 +317,12 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
                         all_itemID_similarity += 0
                     else:
                         all_itemID_similarity += 1
+
                     # domainID similarity
                     digitaltwins_domainID = get_domainID(digitaltwins_temp)
                     realsystem_domainID = get_domainID(realsystem_temp)
+                    all_domainID_count['RealSystem'] += len(realsystem_domainID)
+                    all_domainID_count['DigitalTwins'] += len(digitaltwins_domainID)
                     domain_LCS = 0
 
                     if len(realsystem_domainID) == 0 and len(digitaltwins_domainID) != 0:
@@ -345,9 +358,8 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
             summary_similarity = 5/7 * all_module_similarity/packet_length + 1/7 * \
                 all_itemID_similarity / packet_length + 1/7 * all_domainID_similarity / packet_length
             chance_summary.append(summary_similarity)
-            all_itemID_similarity = 0.0
-            all_domainID_similarity = 0.0
-            all_module_similarity = 0.0
+            chance_itemID_count.append(all_itemID_count.copy())
+            chance_domainID_count.append(all_domainID_count.copy())
 
         except Exception as e:
             print(e)
@@ -355,7 +367,9 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
     print(f'{len(chance_itemID)} chances itemID', chance_itemID)
     print(f'{len(chance_domainID)} chances domainID', chance_domainID)
     print(f'{len(chance_module)} chances module', chance_module)
-    print('all similarity =', f'{len(chance_summary)}', chance_summary)
+    print(f'{len(chance_module)} chances itemID_count', chance_itemID_count)
+    print(f'{len(chance_module)} chances domainID_count', chance_domainID_count)
+    print('all similarity =', chance_summary)
 
 
 def compare_COTP():

@@ -1,4 +1,5 @@
 import json
+from re import match
 
 
 def align(real_sys: list, digital_twins: list):
@@ -405,51 +406,203 @@ def compare_domainID(real_sys_ID: str, digit_twins_ID: str):
     return len(subsq) / len(real_sys_ID)
 
 
-def get_response_count(pktlist: list):
+def get_time(pkt: dict) -> float:
+    time = pkt.get('time')
+    assert time != None
+    return float(time)
+
+
+def get_response_count(pktlist: list, elapsed=0.0):
     total = 0
-    times = 0
+    begin = 0.0
+    if elapsed == 0.0:
+        for value in pktlist:
+            if Is_Request_or_Response(value) == "Response":
+                total += 1
+    else:
+        for value in pktlist:
+            if Is_Request_or_Response(value) == "Response":
+                total += 1
+                if total == 1:
+                    begin = get_time(value)
+                else:
+                    if get_time(value) > begin + elapsed:
+                        total -= 1
+                        break
+                    elif get_time(value) == begin + elapsed:
+                        break
+    return total
+
+
+def get_request_count(pktlist: list, elapsed=0.0):
+    total = 0
+    begin = 0.0
+    if elapsed == 0.0:
+        for value in pktlist:
+            if Is_Request_or_Response(value) == "Request":
+                total += 1
+    else:
+        for value in pktlist:
+            if Is_Request_or_Response(value) == "Request":
+                total += 1
+                if total == 1:
+                    begin = get_time(value)
+                else:
+                    if get_time(value) > begin + elapsed:
+                        total -= 1
+                        break
+                    elif get_time(value) == begin + elapsed:
+                        break
+    return total
+
+
+def get_confirmed_count(pktlist: list, elapsed=0.0):
+    total = 0
+    begin = 0.0
+    if elapsed == 0.0:
+        for value in pktlist:
+            if Is_Confirmed_or_UnConfirmed(value) == "confirmed":
+                total += 1
+    else:
+        for value in pktlist:
+            if Is_Confirmed_or_UnConfirmed(value) == "confirmed":
+                total += 1
+                if total == 1:
+                    begin = get_time(value)
+                else:
+                    if get_time(value) > begin + elapsed:
+                        total -= 1
+                        break
+                    elif get_time(value) == begin + elapsed:
+                        break
+    return total
+
+
+def get_unconfirmed_count(pktlist: list, elapsed=0.0):
+    total = 0
+    begin = 0.0
+    if elapsed == 0.0:
+        for value in pktlist:
+            if Is_Confirmed_or_UnConfirmed(value) == "unconfirmed":
+                total += 1
+    else:
+        for value in pktlist:
+            if Is_Confirmed_or_UnConfirmed(value) == "unconfirmed":
+                total += 1
+                if total == 1:
+                    begin = get_time(value)
+                else:
+                    if get_time(value) > begin + elapsed:
+                        total -= 1
+                        break
+                    elif get_time(value) == begin + elapsed:
+                        break
+    return total
+
+
+def get_response_elapsed(pktlist: list):
+    count = 0
+    begin = 0.0
+    end = 0.0
     for value in pktlist:
         if Is_Request_or_Response(value) == "Response":
-            total += 1
-    return total / times
+            if count == 0:
+                begin = get_time(value)
+            else:
+                end = get_time(value)
+            count += 1
+    return end - begin
 
 
-def get_request_count(pktlist: list):
-    total = 0
-    times = 0
+def get_request_elapsed(pktlist: list):
+    count = 0
+    begin = 0.0
+    end = 0.0
     for value in pktlist:
         if Is_Request_or_Response(value) == "Request":
-            total += 1
-    return total / times
+            if count == 0:
+                begin = get_time(value)
+            else:
+                end = get_time(value)
+            count += 1
+    return end - begin
 
 
-def get_confirmed_count(pktlist: list):
-    total = 0
+def get_confirmed_elapsed(pktlist: list):
+    count = 0
+    begin = 0.0
+    end = 0.0
     for value in pktlist:
         if Is_Confirmed_or_UnConfirmed(value) == "confirmed":
-            total += 1
-    return total
+            if count == 0:
+                begin = get_time(value)
+            else:
+                end = get_time(value)
+            count += 1
+    return end - begin
 
 
-def get_unconfirmed_count(pktlist: list):
-    total = 0
+def get_unconfirmed_elapsed(pktlist: list):
+    count = 0
+    begin = 0.0
+    end = 0.0
     for value in pktlist:
         if Is_Confirmed_or_UnConfirmed(value) == "unconfirmed":
-            total += 1
-    return total
+            if count == 0:
+                begin = get_time(value)
+            else:
+                end = get_time(value)
+            count += 1
+    return end - begin
 
 
-def get_read_count(pktlist: list):
-    total = 0
-    for value in pktlist:
-        if Is_Read_or_Write(value) == "Read":
-            total += 1
-    return total 
+def compare_confirmed_count(real_sys_list: list, Digit_twins_list: list):
+    real_elapsed = get_confirmed_elapsed(real_sys_list)
+    twins_elapsed = get_confirmed_elapsed(Digit_twins_list)
+    if real_elapsed >= twins_elapsed:
+        real_count = get_confirmed_count(real_sys_list, twins_elapsed)
+        twins_count = get_confirmed_count(Digit_twins_list, twins_elapsed)
+    else:
+        real_count = get_confirmed_count(real_sys_list, real_elapsed)
+        twins_count = get_confirmed_count(Digit_twins_list, real_elapsed)
+
+    return 1 - abs(real_count-twins_count) / real_count
 
 
-def get_write_count(pktlist: list):
-    total = 0
-    for value in pktlist:
-        if Is_Read_or_Write(value) == "Write":
-            total += 1
-    return total
+def compare_unconfirmed_count(real_sys_list: list, Digit_twins_list: list):
+    real_elapsed = get_unconfirmed_elapsed(real_sys_list)
+    twins_elapsed = get_confirmed_elapsed(Digit_twins_list)
+    if real_elapsed >= twins_elapsed:
+        real_count = get_confirmed_count(real_sys_list, twins_elapsed)
+        twins_count = get_confirmed_count(Digit_twins_list, twins_elapsed)
+    else:
+        real_count = get_confirmed_count(real_sys_list, real_elapsed)
+        twins_count = get_confirmed_count(Digit_twins_list, real_elapsed)
+
+    return 1 - abs(real_count-twins_count) / real_count
+
+
+def compare_request_count(real_sys_list: list, Digit_twins_list: list):
+    real_elapsed = get_request_elapsed(real_sys_list)
+    twins_elapsed = get_request_elapsed(Digit_twins_list)
+    if real_elapsed >= twins_elapsed:
+        real_count = get_request_count(real_sys_list, twins_elapsed)
+        twins_count = get_request_count(Digit_twins_list, twins_elapsed)
+    else:
+        real_count = get_request_count(real_sys_list, real_elapsed)
+        twins_count = get_request_count(Digit_twins_list, real_elapsed)
+
+    return 1 - abs(real_count-twins_count) / real_count
+
+
+def compare_response_count(real_sys_list: list, Digit_twins_list: list):
+    real_elapsed = get_response_elapsed(real_sys_list)
+    twins_elapsed = get_response_elapsed(Digit_twins_list)
+    if real_elapsed >= twins_elapsed:
+        real_count = get_response_count(real_sys_list, twins_elapsed)
+        twins_count = get_response_count(Digit_twins_list, twins_elapsed)
+    else:
+        real_count = get_response_count(real_sys_list, real_elapsed)
+        twins_count = get_response_count(Digit_twins_list, real_elapsed)
+
+    return 1 - abs(real_count-twins_count) / real_count

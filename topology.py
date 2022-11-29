@@ -1,80 +1,90 @@
-"""
-# pkt = sniff(filter= "tcp" and " host 192.168.2.12") 先不解決libpcap的問題
-print(pkt)   # output: <test.pcap: TCP:2 UDP:0 ICMP:0 Other:0>
-print(pkt.show())  # 概述 0000 Ether / IP / TCP 192.168.2.202:50091 > 192.168.2.12:iso_tsap PA / Raw0001 Ether / IP / TCP 192.168.2.202:50091 > 192.168.2.12:iso_tsap PA / Raw
-print("\npkt[1].show()")  # 詳細內容且已經分類好
-print(len(pkt[0]))  # output:175
-
-"""
-
+#! /usr/bin/env python
 import binascii
 
-#! /usr/bin/env python
 from scapy.all import *
 
 
-def find_mms(pkt):
-    a = 0
-    b = 0
-    record_mms = []
-    for n in range(0, len(pkt)):
-        content = binascii.hexlify(bytes(pkt[n])).decode()
-        if content.find('0300') != -1 and content.find('02f080') != -1:
-            record_mms.append(a)
-            set
-            a = a+1
-            b = b+1
-        else:
-            a = a+1
-    print(b)
-    return record_mms, b
+def find_mms_src_ip(pkt):
+    path = 'output.txt'
+    with open(path, 'w') as f:
+        print("find_mms_src", find_mms_src(pkt), file=f)
 
-
-def find_mms_ip_num(pkt):
-    print(len(find_mms_dst_ip(pkt)))
+    return find_mms_src(pkt)
 
 
 def find_mms_dst_ip(pkt):
+    path = 'output.txt'
+    with open(path, 'a') as f:
+        print("find_mms_dst", find_mms_dst(pkt), file=f)
+
+    return find_mms_dst(pkt)
+
+
+def find_mms_src_ip_num(pkt):
+    path = 'output.txt'
+    with open(path, 'a') as f:
+        print("find_mms_src_num", find_mms_src(pkt), file=f)
+
+    return len(find_mms_src(pkt))
+
+
+def find_mms_dst_ip_num(pkt):
+    path = 'output.txt'
+    with open(path, 'a') as f:
+        print("find_mms_dst_num", find_mms_dst(pkt), file=f)
+
+    return len(find_mms_dst(pkt))
+
+
+def find_mms_src(pkt):
     IP.payload_guess = []
 
-    ips = set(p[IP].dst for p in pkt if IP in p)
-    print("find_mms_dst_ip")
+    ips = set(p[IP].src for p in pkt if IP in p)
     ip_set = set(ip for ip in ips if ip.find('192.168.2') != -1)
 
     return ip_set
 
 
-def find_mms_src_ip(pkt):
+def find_mms_dst(pkt):
     IP.payload_guess = []
 
-    ips = set(p[IP].src for p in pkt if IP in p)
-    print("find_mms_src_ip")
-    for ip in ips:
-        if (ip.find('192.168.2') != -1):
-            print(ip)
+    ips = set(p[IP].dst for p in pkt if IP in p)
+    ip_set = set(ip for ip in ips if ip.find('192.168.2') != -1)
+
+    return ip_set
 
 
-def find_protocol(pkt):  # 查看有哪些protocol
-    pkt = sniff(offline=pkt)
-    # pkt.nsummary()
-    # print(pkt)
+def topology(pkt):
+
+    src_ip = find_mms_src_ip(pkt)
+    dst_ip = find_mms_dst_ip(pkt)
+    src_ip_num = find_mms_src_ip_num(pkt)
+    dst_ip_num = find_mms_dst_ip_num(pkt)
+    return src_ip, dst_ip, src_ip_num, dst_ip_num
 
 
-def topology(filename):
+def compare_similarity(pkt1, pkt2):
+    pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num = topology(pkt1)
+    pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = topology(pkt2)
 
-    pkt = rdpcap(filename)
+    if pkt1_src_ip == pkt2_src_ip:
+        print("mms_src_ip similarity:100%")
+    if pkt1_dst_ip == pkt2_dst_ip:
+        print("mms_dst_ip similarity:100%")
+    if pkt1_src_ip_num == pkt2_src_ip_num:
+        print("mms_src_ip_num similarity:100%")
+    if pkt1_dst_ip_num == pkt2_dst_ip_num:
+        print("mms_dst_ip_num similarity:100%")
 
-    find_mms_ip_num(pkt)
-    find_mms_src_ip(pkt)
-    find_mms_dst_ip(pkt)
-    find_protocol(pkt)
+
+def find_mms_ip(pkt):
+    content = binascii.hexlify(bytes(pkt)).decode()
+    find_cotp = re.search('0300....02f080', content)  # search COTP
+    if (find_cotp == None):
+        return {}
 
 
-# topology("real1.pcap")
-topology("digital-twins-afternoon.pcap")
-# topology("real-afternoon.pcap")
+pkt1 = sniff(offline="s1-morning.pcap", filter="tcp")
+pkt2 = sniff(offline="situation1_morning_again.pcap", filter="tcp")
 
-'''
-    pkt = rdpcap("test.pcapng")  
-    pkt1 = rdpcap("test1.pcapng")  
-'''
+compare_similarity(pkt1, pkt2)

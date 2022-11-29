@@ -273,9 +273,7 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
     chance_module = []
     chance_summary = []
     chance_itemID_count = []
-    chance_domainID_count = []
     all_itemID_count = {"RealSystem": 0, "DigitalTwins": 0}
-    all_domainID_count = {"RealSystem": 0, "DigitalTwins": 0}
     while (chance > 0):
         try:
 
@@ -289,7 +287,6 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
             all_domainID_similarity = 0.0
             all_module_similarity = 0.0
             all_itemID_count.update({"RealSystem": 0, "DigitalTwins": 0})
-            all_domainID_count.update({"RealSystem": 0, "DigitalTwins": 0})
 
             packet_length = len(DigitalTwins_list) if len(realSystem_list) > len(DigitalTwins_list) else len(realSystem_list)
 
@@ -321,8 +318,6 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
                     # domainID similarity
                     digitaltwins_domainID = get_domainID(digitaltwins_temp)
                     realsystem_domainID = get_domainID(realsystem_temp)
-                    all_domainID_count['RealSystem'] += len(realsystem_domainID)
-                    all_domainID_count['DigitalTwins'] += len(digitaltwins_domainID)
                     domain_LCS = 0
 
                     if len(realsystem_domainID) == 0 and len(digitaltwins_domainID) != 0:
@@ -359,7 +354,6 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
                 all_itemID_similarity / packet_length + 1/7 * all_domainID_similarity / packet_length
             chance_summary.append(summary_similarity)
             chance_itemID_count.append(all_itemID_count.copy())
-            chance_domainID_count.append(all_domainID_count.copy())
 
         except Exception as e:
             print(e)
@@ -368,14 +362,12 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
     # print(f'{len(chance_domainID)} chances domainID', chance_domainID)
     # print(f'{len(chance_module)} chances module', chance_module)
     # print(f'{len(chance_module)} chances itemID_count', chance_itemID_count)
-    # print(f'{len(chance_module)} chances domainID_count', chance_domainID_count)
     # print('all similarity =', chance_summary)
     return {
         'itemID': chance_itemID,
         'domainID': chance_domainID,
         'module': chance_module,
-        'itemID_count': chance_itemID_count,
-        'domainID_count': chance_domainID_count,
+        'itemID_and_domainID_count': chance_itemID_count,
         'summary': chance_summary
     }
 

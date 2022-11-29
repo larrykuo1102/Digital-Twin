@@ -1,9 +1,8 @@
 import binascii
 import re
 
-from scapy.all import *
-
 from myParser import Parser as myParser
+from scapy.all import *
 
 
 def Read_and_Parse_Encapsulation(pkt):

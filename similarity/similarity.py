@@ -1,9 +1,13 @@
-import json
-
-from scapy.all import *
 
 from Compare import compare_MMS_Context
 from read_pcap import Parse_PCAP
+from scapy.all import *
+
+
+def Output_Compare_MMS_Context(result):
+    print("summary :", result['summary'])
+    print("itemID_and_domainID_count", result['itemID_and_domainID_count'])
+
 
 if __name__ == '__main__':
 
@@ -19,6 +23,7 @@ if __name__ == '__main__':
     # similarity
     print('begin similarity')
     compare_MMS_context_result = compare_MMS_Context(realSystem_list, DigitalTwins_list)
-    print(json.dumps(compare_MMS_context_result, indent=2))
+
+    Output_Compare_MMS_Context(compare_MMS_context_result)
     # similarity report
     print('similarity report')

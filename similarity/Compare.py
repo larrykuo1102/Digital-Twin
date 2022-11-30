@@ -1,5 +1,4 @@
 import json
-from re import match
 
 
 def align(real_sys: list, digital_twins: list):
@@ -270,8 +269,9 @@ def get_domainID(module_list: list):
 
 
 # compare_MMS(twins, "MMS")
-def compare_MMS_Context(realSystem_list, DigitalTwins_list):
-    chance = 3
+def compare_MMS_Context(realSystem_list, DigitalTwins_list, input_chance):
+    chance = input_chance
+    num = chance
     chance_domainID = []
     chance_itemID = []
     chance_module = []
@@ -375,12 +375,26 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list):
     # print(f'{len(chance_module)} chances module', chance_module)
     # print(f'{len(chance_module)} chances itemID_count', chance_itemID_count)
     # print('all similarity =', chance_summary)
+    temp_summary = 0.0
+    for i in chance_summary:
+        temp_summary += i
+    temp_count_digital = 0.0
+    temp_count_real = 0.0
+    for i in chance_itemID_count:
+        temp_count_digital += i['DigitalTwins']
+        temp_count_real += i['RealSystem']
     return {
         'itemID': chance_itemID,
         'domainID': chance_domainID,
         'module': chance_module,
         'itemID_and_domainID_count': chance_itemID_count,
-        'summary': chance_summary
+        'summary': chance_summary,
+        'result': {
+            'summary': temp_summary/num,
+            'count_digital': temp_count_digital/num,
+            'count_real': temp_count_real/num,
+            'count_similarity': 1 - (abs(temp_count_digital/num - temp_count_real/num) / (temp_count_real/num))
+        }
     }
 
 
@@ -585,15 +599,19 @@ def compare_confirmed_count(real_sys_list: list, Digit_twins_list: list):
 
 def compare_unconfirmed_count(real_sys_list: list, Digit_twins_list: list):
     real_elapsed = get_unconfirmed_elapsed(real_sys_list)
-    twins_elapsed = get_confirmed_elapsed(Digit_twins_list)
+    twins_elapsed = get_unconfirmed_elapsed(Digit_twins_list)
     if real_elapsed >= twins_elapsed:
-        real_count = get_confirmed_count(real_sys_list, twins_elapsed)
-        twins_count = get_confirmed_count(Digit_twins_list, twins_elapsed)
+        real_count = get_unconfirmed_count(real_sys_list, twins_elapsed)
+        twins_count = get_unconfirmed_count(Digit_twins_list, twins_elapsed)
     else:
-        real_count = get_confirmed_count(real_sys_list, real_elapsed)
-        twins_count = get_confirmed_count(Digit_twins_list, real_elapsed)
+        real_count = get_unconfirmed_count(real_sys_list, real_elapsed)
+        twins_count = get_unconfirmed_count(Digit_twins_list, real_elapsed)
+    if real_count == 0:
+        result = 0
+    else:
+        result = 1 - abs(real_count-twins_count) / real_count
 
-    return 1 - abs(real_count-twins_count) / real_count
+    return result
 
 
 def compare_request_count(real_sys_list: list, Digit_twins_list: list):

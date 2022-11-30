@@ -1,7 +1,9 @@
-from topology import compare_topology_similarity
 from Compare import compare_MMS_Context
 from read_pcap import Parse_PCAP
 from scapy.all import *
+
+from time_similarity import find_accuray_mms
+from topology import compare_topology_similarity
 
 
 def Output_frequecy_and_time_gap(result):
@@ -56,16 +58,18 @@ if __name__ == '__main__':
     DigitalTwins = sniff(offline='situation1_morning_again.pcap',
                          filter='tcp')
 
-    compare_topology_similarity(realSystem, DigitalTwins)
-
     # make two files parser
     realSystem_list = Parse_PCAP(realSystem)
     DigitalTwins_list = Parse_PCAP(DigitalTwins)
     # similarity
+
+    compare_topology_similarity(realSystem, DigitalTwins)
+
     print('begin similarity')
+
+    time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins)
+    Output_frequecy_and_time_gap(time_accuray_and_relation)
+
     compare_MMS_Context(realSystem_list, DigitalTwins_list)
-
-    Output_frequecy_and_timegap()
-
     # similarity report
     print('similarity report')

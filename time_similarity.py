@@ -318,7 +318,7 @@ def find_accuray_mms(real, digital):
     return mms_dict
 
 
-real = rdpcap('real-afternoon.pcap')
-digital = rdpcap('digital-twins-afternoon.pcap')
-time_accuray_and_relation = find_accuray_mms(real, digital)
-print(time_accuray_and_relation['frequency'][7])
+# real = rdpcap('real-afternoon.pcap')
+# digital = rdpcap('digital-twins-afternoon.pcap')
+# time_accuray_and_relation = find_accuray_mms(real, digital)
+# print(time_accuray_and_relation['frequency'][7])

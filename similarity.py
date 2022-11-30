@@ -1,3 +1,4 @@
+from topology import compare_topology_similarity
 from Compare import compare_MMS_Context
 from read_pcap import Parse_PCAP
 from scapy.all import *
@@ -54,6 +55,9 @@ if __name__ == '__main__':
 
     DigitalTwins = sniff(offline='situation1_morning_again.pcap',
                          filter='tcp')
+
+    compare_topology_similarity(realSystem, DigitalTwins)
+
     # make two files parser
     realSystem_list = Parse_PCAP(realSystem)
     DigitalTwins_list = Parse_PCAP(DigitalTwins)

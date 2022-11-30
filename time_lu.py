@@ -189,8 +189,6 @@ def find_accuray_mms(real, digital):
     real_freq_mms = caculate_frequency_mms(real_mms[1], last_time_mms[0])
     digital_freq_mms = caculate_frequency_mms(digital_mms[1], last_time_mms[1])
     accuray_freq_mms = caculate_accuray_frequency(real_freq_mms, digital_freq_mms)
-    print(type(real_mms[1]))
-    print(type(last_time_mms[0]))
 
     real_mechine_11 = find_mechine_mms(real, mechine[0])
     digital_mechine_11 = find_mechine_mms(digital, mechine[0])
@@ -284,13 +282,3 @@ def find_accuray_mms(real, digital):
     print("digital_mms_202 to 13 total:", digital_mechine_202_to_13[1])
     print("mms_202 to 13 time gap: accuray", last_time_mms_202_to_13[2])
     print("mms_202 to 13 frequency: accuray", accuray_freq_202_to_13)
-
-
-# print(real_mechine_202_to_11)
-#w = find_mms(pkt)
-# print(w)
-# time()
-
-# real = rdpcap('real-afternoon.pcap')
-# digital = rdpcap('digital-twins-afternoon.pcap')
-# time_accuray_and_relation = find_accuray_mms(real, digital)

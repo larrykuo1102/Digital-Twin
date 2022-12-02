@@ -86,7 +86,12 @@ if __name__ == '__main__':
     # similarity
     print('begin similarity\n')
 
-    compare_topology_similarity(realSystem, DigitalTwins)
+    pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
+        realSystem, DigitalTwins)
+    path = "topology_output.txt"
+    with open(path, 'w') as f:
+        print("realSystem_src_ip", pkt1_src_ip, "\nDigitalTwins_src_ip", pkt2_src_ip, "\nrealSystem_dst_ip", pkt1_dst_ip, "\nDigitalTwins_dst_ip", pkt2_dst_ip, "\nrealSystem_src_ip_num", pkt1_src_ip_num,
+              "\nDigitalTwins_src_ip_num", pkt2_dst_ip_num, "\nrealSystem_dst_ip_num", pkt1_dst_ip_num, "\nDigitalTwins_dst_ip_num", pkt2_dst_ip_num, file=f)
 
     time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins)
     Output_frequecy_and_time_gap(time_accuray_and_relation)

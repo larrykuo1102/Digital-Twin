@@ -74,10 +74,10 @@ def Output_Compare_MMS_Context(result):
 if __name__ == '__main__':
 
     # read two pcap(must be pcap not pcapng)
-    realSystem = sniff(offline='./pcap_file/s1-morning.pcap',
+    realSystem = sniff(offline='./pcap_file/s1-afternoon.pcap',
                        filter='tcp')
 
-    DigitalTwins = sniff(offline='./pcap_file/situation1_morning_again.pcap',
+    DigitalTwins = sniff(offline='pcap_file/Digital-Twins-situation1-afternoon.pcap',
                          filter='tcp')
     # make two files parser
     realSystem_list = Parse_PCAP(realSystem)

@@ -1,4 +1,6 @@
 
+import os
+
 from Compare import (compare_confirmed_count, compare_MMS_Context,
                      compare_request_count, compare_response_count,
                      compare_unconfirmed_count)
@@ -72,9 +74,9 @@ def Output_Compare_MMS_Context(result):
 
 
 if __name__ == '__main__':
-
+    os.makedirs('Compare_MMS_Context', 777, exist_ok=True)
     # read two pcap(must be pcap not pcapng)
-    realSystem = sniff(offline='./pcap_file/s1-afternoon.pcap',
+    realSystem = sniff(offline='pcap_file/s1-afternoon.pcap',
                        filter='tcp')
 
     DigitalTwins = sniff(offline='pcap_file/Digital-Twins-situation1-afternoon.pcap',
@@ -95,13 +97,26 @@ if __name__ == '__main__':
 
     time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins)
     Output_frequecy_and_time_gap(time_accuray_and_relation)
+    time_accuray_and_relation_result = 0.0
 
-    print("compare_response_count:", compare_response_count(realSystem_list, DigitalTwins_list))
-    print("compare_request_count:", compare_request_count(realSystem_list, DigitalTwins_list))
-    print("compare_confirmed_count:", compare_confirmed_count(realSystem_list, DigitalTwins_list))
-    print("compare_unconfirmed_count:", compare_unconfirmed_count(realSystem_list, DigitalTwins_list))
+    compare_request_count_result = compare_request_count(realSystem_list, DigitalTwins_list)
+    compare_response_count_result = compare_response_count(realSystem_list, DigitalTwins_list)
+    compare_confirmed_count_result = compare_confirmed_count(realSystem_list, DigitalTwins_list)
+    compare_unconfirmed_count_result = compare_unconfirmed_count(realSystem_list, DigitalTwins_list)
+    print("compare_response_count:", compare_request_count_result)
+    print("compare_request_count:", compare_request_count_result)
+    print("compare_confirmed_count:", compare_confirmed_count_result)
+    print("compare_unconfirmed_count:", compare_unconfirmed_count_result)
+
+    compare_request_response_result = (compare_request_count_result + compare_response_count_result) / 2
+    compare_confirmed_unconfirmed_result = (compare_confirmed_count_result*0.9 + compare_unconfirmed_count_result*0.1)
 
     compare_MMS_context_result = compare_MMS_Context(realSystem_list, DigitalTwins_list, 3)
     Output_Compare_MMS_Context(compare_MMS_context_result)
+    compare_MMS = float(compare_MMS_context_result['result']['summary']) * 0.5 + float(compare_MMS_context_result['result']['count_similarity']) * 0.5
+
+    final_result = (compare_request_response_result*0.5+compare_confirmed_unconfirmed_result*0.5) + compare_MMS
+    final_result = final_result/2
+    print("final similarity is :", final_result)
     # similarity report
     print('\nsimilarity report')

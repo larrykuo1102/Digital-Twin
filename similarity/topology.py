@@ -7,32 +7,24 @@ from scapy.all import *
 
 def find_mms_src_ip(pkt):
     path = 'topology_output.txt'
-    with open(path, 'w') as f:
-        print("find_mms_src", find_mms_src(pkt), file=f)
 
     return find_mms_src(pkt)
 
 
 def find_mms_dst_ip(pkt):
     path = 'topology_output.txt'
-    with open(path, 'a') as f:
-        print("find_mms_dst", find_mms_dst(pkt), file=f)
 
     return find_mms_dst(pkt)
 
 
 def find_mms_src_ip_num(pkt):
     path = 'topology_output.txt'
-    with open(path, 'a') as f:
-        print("find_mms_src_num", find_mms_src(pkt), file=f)
 
     return len(find_mms_src(pkt))
 
 
 def find_mms_dst_ip_num(pkt):
     path = 'topology_output.txt'
-    with open(path, 'a') as f:
-        print("find_mms_dst_num", find_mms_dst(pkt), file=f)
 
     return len(find_mms_dst(pkt))
 
@@ -76,3 +68,5 @@ def compare_topology_similarity(pkt1, pkt2):
         print("mms_src_ip_num similarity:100%")
     if pkt1_dst_ip_num == pkt2_dst_ip_num:
         print("mms_dst_ip_num similarity:100%")
+
+    return pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num

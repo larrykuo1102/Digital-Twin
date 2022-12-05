@@ -74,10 +74,10 @@ def Output_Compare_MMS_Context(result):
 if __name__ == '__main__':
 
     # read two pcap(must be pcap not pcapng)
-    realSystem = sniff(offline='./pcap_file/s2-noon.pcap',
+    realSystem = sniff(offline='./pcap_file/s2-morning.pcap',
                        filter='tcp')
 
-    DigitalTwins = sniff(offline='./pcap_file/situation2_noon_1130.pcap',
+    DigitalTwins = sniff(offline='./pcap_file/situation2_morning_1130.pcap',
                          filter='tcp')
     # make two files parser
     realSystem_list = Parse_PCAP(realSystem)
@@ -89,10 +89,10 @@ if __name__ == '__main__':
     src_ip, dst_ip, src_ip_num, dst_ip_num, pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
         realSystem, DigitalTwins)
 
-    print("mms_src_ip similarity:", src_ip)
-    print("mms_dst_ip similarity:", src_ip)
-    print("mms_src_ip_num similarity:", src_ip)
-    print("mms_dst_ip_num similarity:", src_ip)
+    print("mms_src_ip similarity:", src_ip, "%")
+    print("mms_dst_ip similarity:", src_ip, "%")
+    print("mms_src_ip_num similarity:", src_ip, "%")
+    print("mms_dst_ip_num similarity:", src_ip, "%")
 
     path = "topology_output.txt"
     with open(path, 'w') as f:

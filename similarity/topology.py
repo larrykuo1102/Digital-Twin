@@ -61,12 +61,12 @@ def compare_topology_similarity(pkt1, pkt2):
     pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = find_topology(pkt2)
 
     if pkt1_src_ip == pkt2_src_ip:
-        print("mms_src_ip similarity:100%")
+        src_ip = 100
     if pkt1_dst_ip == pkt2_dst_ip:
-        print("mms_dst_ip similarity:100%")
+        dst_ip = 100
     if pkt1_src_ip_num == pkt2_src_ip_num:
-        print("mms_src_ip_num similarity:100%")
+        src_ip_num = 100
     if pkt1_dst_ip_num == pkt2_dst_ip_num:
-        print("mms_dst_ip_num similarity:100%")
+        dst_ip_num = 100
 
-    return pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num
+    return src_ip, dst_ip, src_ip_num, dst_ip_num, pkt1_src_ip,  pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num

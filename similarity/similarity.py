@@ -74,10 +74,10 @@ def Output_Compare_MMS_Context(result):
 if __name__ == '__main__':
 
     # read two pcap(must be pcap not pcapng)
-    realSystem = sniff(offline='./pcap_file/s1-morning.pcap',
+    realSystem = sniff(offline='./pcap_file/s2-noon.pcap',
                        filter='tcp')
 
-    DigitalTwins = sniff(offline='./pcap_file/situation1_morning_again.pcap',
+    DigitalTwins = sniff(offline='./pcap_file/situation2_noon_1130.pcap',
                          filter='tcp')
     # make two files parser
     realSystem_list = Parse_PCAP(realSystem)
@@ -86,8 +86,18 @@ if __name__ == '__main__':
     # similarity
     print('begin similarity\n')
 
-    pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
+    src_ip, dst_ip, src_ip_num, dst_ip_num, pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
         realSystem, DigitalTwins)
+
+    if pkt1_src_ip == pkt2_src_ip:
+        print("mms_src_ip similarity:100%")
+    if pkt1_dst_ip == pkt2_dst_ip:
+        print("mms_dst_ip similarity:100%")
+    if pkt1_src_ip_num == pkt2_src_ip_num:
+        print("mms_src_ip_num similarity:100%")
+    if pkt1_dst_ip_num == pkt2_dst_ip_num:
+        print("mms_dst_ip_num similarity:100%")
+
     path = "topology_output.txt"
     with open(path, 'w') as f:
         print("realSystem_src_ip", pkt1_src_ip, "\nDigitalTwins_src_ip", pkt2_src_ip, "\nrealSystem_dst_ip", pkt1_dst_ip, "\nDigitalTwins_dst_ip", pkt2_dst_ip, "\nrealSystem_src_ip_num", pkt1_src_ip_num,

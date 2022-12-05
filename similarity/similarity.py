@@ -89,14 +89,10 @@ if __name__ == '__main__':
     src_ip, dst_ip, src_ip_num, dst_ip_num, pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
         realSystem, DigitalTwins)
 
-    if pkt1_src_ip == pkt2_src_ip:
-        print("mms_src_ip similarity:100%")
-    if pkt1_dst_ip == pkt2_dst_ip:
-        print("mms_dst_ip similarity:100%")
-    if pkt1_src_ip_num == pkt2_src_ip_num:
-        print("mms_src_ip_num similarity:100%")
-    if pkt1_dst_ip_num == pkt2_dst_ip_num:
-        print("mms_dst_ip_num similarity:100%")
+    print("mms_src_ip similarity:", src_ip)
+    print("mms_dst_ip similarity:", src_ip)
+    print("mms_src_ip_num similarity:", src_ip)
+    print("mms_dst_ip_num similarity:", src_ip)
 
     path = "topology_output.txt"
     with open(path, 'w') as f:

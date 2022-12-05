@@ -29,7 +29,7 @@ def caculate_time(real, digital):  # 計算所有時間
         for n in range(0, len(digital_time)-1):
             total_gap = total_gap+(abs(digital_time_gap[n]-real_time_gap[n]))
             gap.append(abs(digital_time_gap[n]-real_time_gap[n]))
-        average_gap = total_gap/(len(digital_time)-2)
+        #average_gap = total_gap/(len(digital_time)-2)
     else:
         for n in range(0, len(real_time)-1):
             total_gap = total_gap+(abs(digital_time_gap[n]-real_time_gap[n]))
@@ -90,10 +90,35 @@ def caculate_time2(real, digital, number1, number2):  # 計算時間在mms numbe
     return time_gap_real, time_gap_digital, time_accuray, real_time_gap, len(real_time_gap), digital_time_gap
 
 
-def caculate_frequency_mms(total, time):
-    freq = total/time
-    #print("frequency:", freq)
-    return freq
+def caculate_frequency_mms(real, digital, real_mms, digital_mms, real_total, digital_total):
+    real_time = []
+    digital_time = []
+    total = 0
+    for pkt in real:
+        real_time.append(pkt.time)
+    for pkt in digital:
+        digital_time.append(pkt.time)
+    real_time_total = real_time[len(real_time)-1]-real_time[0]
+    digital_time_total = digital_time[len(digital_time)-1]-digital_time[0]
+    if (real_time_total > digital_time_total):
+        compare_time = digital_time_total
+        for i in range(0, len(real_time)):
+            if (real_time[real_mms[i]] < real_time[real_mms[0]]+compare_time):
+                total = total+1
+            else:
+                break
+        digital_freq = digital_total/compare_time
+        real_freq = total/compare_time
+    else:
+        compare_time = real_time_total
+        for i in range(0, len(digital_time)):
+            if (digital_time[digital_mms[i]] < digital_time[digital_mms[0]]+digital_time):
+                total = total+1
+            else:
+                break
+        real_freq = real_total/compare_time
+        digital_freq = total/compare_time
+    return real_freq, digital_freq
 
 
 def caculate_accuray_frequency(real_freq, digital_freq):
@@ -199,9 +224,8 @@ def find_accuray_mms(real, digital):
     real_mms = find_mms(real)
     digital_mms = find_mms(digital)
     last_time_mms = caculate_time2(real, digital, real_mms[0], digital_mms[0])
-    real_freq_mms = caculate_frequency_mms(real_mms[1], last_time_mms[0])
-    digital_freq_mms = caculate_frequency_mms(digital_mms[1], last_time_mms[1])
-    accuray_freq_mms = caculate_accuray_frequency(real_freq_mms, digital_freq_mms)
+    freq_mms = caculate_frequency_mms(real, digital, real_mms[0], digital_mms[0], real_mms[1], digital_mms[1])
+    accuray_freq_mms = caculate_accuray_frequency(freq_mms[0], freq_mms[1])  # 0是real 1是digital
     proportion_total_mms = caculate_mms_total_proportion(real_mms[1], digital_mms[1])
     #write_file(real_mms[0], "real_mms")
     #write_file(digital_mms[0], "digital_mms")
@@ -209,9 +233,8 @@ def find_accuray_mms(real, digital):
     real_mechine_11 = find_mechine_mms(real, mechine[0])
     digital_mechine_11 = find_mechine_mms(digital, mechine[0])
     last_time_mms_11 = caculate_time2(real, digital, real_mechine_11[0], digital_mechine_11[0])
-    real_freq_mms_11 = caculate_frequency_mms(real_mechine_11[1], last_time_mms_11[0])
-    digital_freq_mms_11 = caculate_frequency_mms(digital_mechine_11[1], last_time_mms_11[1])
-    accuray_freq_11 = caculate_accuray_frequency(real_freq_mms_11, digital_freq_mms_11)
+    freq_11 = caculate_frequency_mms(real, digital, real_mechine_11[0], digital_mechine_11[0], real_mechine_11[1], digital_mechine_11[1])
+    accuray_freq_11 = caculate_accuray_frequency(freq_11[0], freq_11[1])  # 0是real 1是digital
     accuray_total_11 = caculate_accuray_total(proportion_total_mms, real_mechine_11[1], digital_mechine_11[1])
     #write_file(real_mechine_11[0], "real_mechine_11")
     #write_file(digital_mechine_11[0], "digital_mechine_11")
@@ -219,9 +242,8 @@ def find_accuray_mms(real, digital):
     real_mechine_12 = find_mechine_mms(real, mechine[1])
     digital_mechine_12 = find_mechine_mms(digital, mechine[1])
     last_time_mms_12 = caculate_time2(real, digital, real_mechine_12[0], digital_mechine_12[0])
-    real_freq_mms_12 = caculate_frequency_mms(real_mechine_12[1], last_time_mms_12[0])
-    digital_freq_mms_12 = caculate_frequency_mms(digital_mechine_12[1], last_time_mms_12[1])
-    accuray_freq_12 = caculate_accuray_frequency(real_freq_mms_12, digital_freq_mms_12)
+    freq_12 = caculate_frequency_mms(real, digital, real_mechine_12[0], digital_mechine_12[0], real_mechine_12[1], digital_mechine_12[1])
+    accuray_freq_12 = caculate_accuray_frequency(freq_12[0], freq_12[1])  # 0是real 1是digital
     accuray_total_12 = caculate_accuray_total(proportion_total_mms, real_mechine_12[1], digital_mechine_12[1])
     #write_file(real_mechine_12[0], "real_mechine_12")
     #write_file(digital_mechine_12[0], "digital_mechine_12")
@@ -229,9 +251,8 @@ def find_accuray_mms(real, digital):
     real_mechine_13 = find_mechine_mms(real, mechine[2])
     digital_mechine_13 = find_mechine_mms(digital, mechine[2])
     last_time_mms_13 = caculate_time2(real, digital, real_mechine_13[0], digital_mechine_13[0])
-    real_freq_mms_13 = caculate_frequency_mms(real_mechine_13[1], last_time_mms_13[0])
-    digital_freq_mms_13 = caculate_frequency_mms(digital_mechine_13[1], last_time_mms_13[1])
-    accuray_freq_13 = caculate_accuray_frequency(real_freq_mms_13, digital_freq_mms_13)
+    freq_13 = caculate_frequency_mms(real, digital, real_mechine_13[0], digital_mechine_13[0], real_mechine_13[1], digital_mechine_13[1])
+    accuray_freq_13 = caculate_accuray_frequency(freq_13[0], freq_13[1])  # 0是real 1是digital
     accuray_total_13 = caculate_accuray_total(proportion_total_mms, real_mechine_13[1], digital_mechine_13[1])
     #write_file(real_mechine_13[0], "real_mechine_13")
     #write_file(digital_mechine_13[0], "digital_mechine_13")
@@ -239,9 +260,8 @@ def find_accuray_mms(real, digital):
     real_mechine_202 = find_mechine_mms(real, mechine[3])
     digital_mechine_202 = find_mechine_mms(digital, mechine[3])
     last_time_mms_202 = caculate_time2(real, digital, real_mechine_202[0], digital_mechine_202[0])
-    real_freq_mms_202 = caculate_frequency_mms(real_mechine_202[1], last_time_mms_202[0])
-    digital_freq_mms_202 = caculate_frequency_mms(digital_mechine_202[1], last_time_mms_202[1])
-    accuray_freq_202 = caculate_accuray_frequency(real_freq_mms_202, digital_freq_mms_202)
+    freq_202 = caculate_frequency_mms(real, digital, real_mechine_202[0], digital_mechine_202[0], real_mechine_202[1], digital_mechine_202[1])
+    accuray_freq_202 = caculate_accuray_frequency(freq_202[0], freq_202[1])  # 0是real 1是digital
     accuray_total_202 = caculate_accuray_total(proportion_total_mms, real_mechine_202[1], digital_mechine_202[1])
     #write_file(real_mechine_202[0], "real_mechine_202")
     #write_file(digital_mechine_202[0], "digital_mechine_202")
@@ -249,9 +269,9 @@ def find_accuray_mms(real, digital):
     real_mechine_202_to_11 = find_mechine_mms_fixed_dest(real, mechine[3], dest[1])
     digital_mechine_202_to_11 = find_mechine_mms_fixed_dest(digital, mechine[3], dest[1])
     last_time_mms_202_to_11 = caculate_time2(real, digital, real_mechine_202_to_11[0], digital_mechine_202_to_11[0])
-    real_freq_mms_202_to_11 = caculate_frequency_mms(real_mechine_202_to_11[1], last_time_mms_202_to_11[0])
-    digital_freq_mms_202_to_11 = caculate_frequency_mms(digital_mechine_202_to_11[1], last_time_mms_202_to_11[1])
-    accuray_freq_202_to_11 = caculate_accuray_frequency(real_freq_mms_202_to_11, digital_freq_mms_202_to_11)
+    freq_202_to_11 = caculate_frequency_mms(
+        real, digital, real_mechine_202_to_11[0], digital_mechine_202_to_11[0], real_mechine_202_to_11[1], digital_mechine_202_to_11[1])
+    accuray_freq_202_to_11 = caculate_accuray_frequency(freq_202_to_11[0], freq_202_to_11[1])  # 0是real 1是digital
     accuray_total_202_to_11 = caculate_accuray_total(proportion_total_mms, real_mechine_202_to_11[1], digital_mechine_202_to_11[1])
     #write_file(real_mechine_202_to_11[0], "real_mechine_202_to_11")
     #write_file(digital_mechine_202_to_11[0], "digital_mechine_202_to_11")
@@ -259,9 +279,9 @@ def find_accuray_mms(real, digital):
     real_mechine_202_to_12 = find_mechine_mms_fixed_dest(real, mechine[3], dest[2])
     digital_mechine_202_to_12 = find_mechine_mms_fixed_dest(digital, mechine[3], dest[2])
     last_time_mms_202_to_12 = caculate_time2(real, digital, real_mechine_202_to_12[0], digital_mechine_202_to_12[0])
-    real_freq_mms_202_to_12 = caculate_frequency_mms(real_mechine_202_to_12[1], last_time_mms_202_to_12[0])
-    digital_freq_mms_202_to_12 = caculate_frequency_mms(digital_mechine_202_to_12[1], last_time_mms_202_to_12[1])
-    accuray_freq_202_to_12 = caculate_accuray_frequency(real_freq_mms_202_to_12, digital_freq_mms_202_to_12)
+    freq_202_to_12 = caculate_frequency_mms(
+        real, digital, real_mechine_202_to_12[0], digital_mechine_202_to_12[0], real_mechine_202_to_12[1], digital_mechine_202_to_12[1])
+    accuray_freq_202_to_12 = caculate_accuray_frequency(freq_202_to_12[0], freq_202_to_12[1])  # 0是real 1是digital
     accuray_total_202_to_12 = caculate_accuray_total(proportion_total_mms, real_mechine_202_to_12[1], digital_mechine_202_to_12[1])
     #write_file(real_mechine_202_to_12[0], "real_mechine_202_to_12")
     #write_file(digital_mechine_202_to_12[0], "digital_mechine_202_to_12")
@@ -269,9 +289,9 @@ def find_accuray_mms(real, digital):
     real_mechine_202_to_13 = find_mechine_mms_fixed_dest(real, mechine[3], dest[3])
     digital_mechine_202_to_13 = find_mechine_mms_fixed_dest(digital, mechine[3], dest[3])
     last_time_mms_202_to_13 = caculate_time2(real, digital, real_mechine_202_to_13[0], digital_mechine_202_to_13[0])
-    real_freq_mms_202_to_13 = caculate_frequency_mms(real_mechine_202_to_13[1], last_time_mms_202_to_13[0])
-    digital_freq_mms_202_to_13 = caculate_frequency_mms(digital_mechine_202_to_13[1], last_time_mms_202_to_13[1])
-    accuray_freq_202_to_13 = caculate_accuray_frequency(real_freq_mms_202_to_13, digital_freq_mms_202_to_13)
+    accuray_freq_202_to_13 = caculate_frequency_mms(
+        real, digital, real_mechine_202_to_13[0], digital_mechine_202_to_13[0], real_mechine_202_to_13[1], digital_mechine_202_to_13[1])
+    accuray_freq_202_to_13 = caculate_accuray_frequency(accuray_freq_202_to_13[0], accuray_freq_202_to_13[1])  # 0是real 1是digital
     accuray_total_202_to_13 = caculate_accuray_total(proportion_total_mms, real_mechine_202_to_13[1], digital_mechine_202_to_13[1])
     #write_file(real_mechine_202_to_13[0], "real_mechine_202_to_13")
     #write_file(digital_mechine_202_to_13[0], "digital_mechine_202_to_13")
@@ -321,7 +341,7 @@ def find_accuray_mms(real, digital):
     # print()
     average_accuracy_frequency = (accuray_freq_11+accuray_freq_12+accuray_freq_13 +
                                   accuray_freq_202_to_11+accuray_freq_202_to_12+accuray_freq_202_to_13)/6
-    frequency_value = [accuray_freq_mms, accuray_freq_11, accuray_freq_12, accuray_freq_13, accuray_freq_202,
+    frequency_value = [accuray_freq_11, accuray_freq_12, accuray_freq_13, accuray_freq_202,
                        accuray_freq_202_to_11, accuray_freq_202_to_12, accuray_freq_202_to_13]
     average = [average_accuracy_total, average_accuracy_time, average_accuracy_frequency]
     # print("frequency")
@@ -341,7 +361,7 @@ def find_accuray_mms(real, digital):
     return mms_dict
 
 
-# real = rdpcap('real-afternoon.pcap')
-# digital = rdpcap('digital-twins-afternoon.pcap')
-# time_accuray_and_relation = find_accuray_mms(real, digital)
+real = rdpcap('s1-morning.pcap')
+digital = rdpcap('situation1_morning_again.pcap')
+time_accuray_and_relation = find_accuray_mms(real, digital)
 # print(time_accuray_and_relation['frequency'][7])

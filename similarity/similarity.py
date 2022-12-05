@@ -85,44 +85,50 @@ if __name__ == '__main__':
     realSystem_list = Parse_PCAP(realSystem)
     DigitalTwins_list = Parse_PCAP(DigitalTwins)
 
-    # similarity
     print('begin similarity\n')
 
+    # IP similarity
     src_ip, dst_ip, src_ip_num, dst_ip_num, pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
         realSystem, DigitalTwins)
 
     print("mms_src_ip similarity:", src_ip, "%")
-    print("mms_dst_ip similarity:", src_ip, "%")
-    print("mms_src_ip_num similarity:", src_ip, "%")
-    print("mms_dst_ip_num similarity:", src_ip, "%")
+    print("mms_dst_ip similarity:", dst_ip, "%")
+    print("mms_src_ip_num similarity:", src_ip_num, "%")
+    print("mms_dst_ip_num similarity:", dst_ip_num, "%\n")
 
-    path = "topology_output.txt"
-    with open(path, 'w') as f:
-        print("realSystem_src_ip", pkt1_src_ip, "\nDigitalTwins_src_ip", pkt2_src_ip, "\nrealSystem_dst_ip", pkt1_dst_ip, "\nDigitalTwins_dst_ip", pkt2_dst_ip, "\nrealSystem_src_ip_num", pkt1_src_ip_num,
-              "\nDigitalTwins_src_ip_num", pkt2_dst_ip_num, "\nrealSystem_dst_ip_num", pkt1_dst_ip_num, "\nDigitalTwins_dst_ip_num", pkt2_dst_ip_num, file=f)
+    ip_similarity: float = (float(src_ip)+float(dst_ip)+float(src_ip_num)+float(dst_ip_num))/4
 
+    # Time gap similarity, Frequency similarity, Packet Sum similarity
     time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins)
     Output_frequecy_and_time_gap(time_accuray_and_relation)
     time_accuray_and_relation_result = 0.0
 
+    # request and response sum similarity
     compare_request_count_result = compare_request_count(realSystem_list, DigitalTwins_list)
     compare_response_count_result = compare_response_count(realSystem_list, DigitalTwins_list)
-    compare_confirmed_count_result = compare_confirmed_count(realSystem_list, DigitalTwins_list)
-    compare_unconfirmed_count_result = compare_unconfirmed_count(realSystem_list, DigitalTwins_list)
     print("compare_response_count:", compare_request_count_result)
     print("compare_request_count:", compare_request_count_result)
+
+    # confirmed and unfirmed sum similarity
+    compare_confirmed_count_result = compare_confirmed_count(realSystem_list, DigitalTwins_list)
+    compare_unconfirmed_count_result = compare_unconfirmed_count(realSystem_list, DigitalTwins_list)
     print("compare_confirmed_count:", compare_confirmed_count_result)
     print("compare_unconfirmed_count:", compare_unconfirmed_count_result)
 
     compare_request_response_result = (compare_request_count_result + compare_response_count_result) / 2
     compare_confirmed_unconfirmed_result = (compare_confirmed_count_result*0.9 + compare_unconfirmed_count_result*0.1)
-
+    # MMS context similarity
     compare_MMS_context_result = compare_MMS_Context(realSystem_list, DigitalTwins_list, 3)
     Output_Compare_MMS_Context(compare_MMS_context_result)
     compare_MMS = float(compare_MMS_context_result['result']['summary']) * 0.5 + float(compare_MMS_context_result['result']['count_similarity']) * 0.5
 
-    final_result = (compare_request_response_result*0.5+compare_confirmed_unconfirmed_result*0.5) + compare_MMS
-    final_result = final_result/2
+    final_result = (compare_request_response_result*0.5+compare_confirmed_unconfirmed_result*0.5) + compare_MMS + ip_similarity/100
+    final_result = final_result/3
     print("final similarity is :", final_result)
     # similarity report
     print('\nsimilarity report')
+
+    path = "topology_output.txt"
+    with open(path, 'w') as f:
+        print("realSystem_src_ip", pkt1_src_ip, "\nDigitalTwins_src_ip", pkt2_src_ip, "\nrealSystem_dst_ip", pkt1_dst_ip, "\nDigitalTwins_dst_ip", pkt2_dst_ip, "\nrealSystem_src_ip_num", pkt1_src_ip_num,
+              "\nDigitalTwins_src_ip_num", pkt2_dst_ip_num, "\nrealSystem_dst_ip_num", pkt1_dst_ip_num, "\nDigitalTwins_dst_ip_num", pkt2_dst_ip_num, file=f)

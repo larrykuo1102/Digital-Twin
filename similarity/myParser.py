@@ -469,11 +469,6 @@ def confirmed_ResponsePDU(value: str, mms_data: list):
         temp_list = []
         temp_dict['Write_Response'] = temp_list
         rest = Write_Response(data['value'], temp_list)
-    # elif (data['tag'] == 'a6'):
-    #     temp_list = []
-    #     temp_dict['GetVariableAccessAttributes_Response'] = temp_list
-    #     rest = GetVariableAccessAttributes_Response(data['value'], temp_list)
-    #     pass
 
     return rest
 

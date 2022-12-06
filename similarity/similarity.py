@@ -95,8 +95,8 @@ if __name__ == '__main__':
     print('begin similarity\n')
 
     compare_topology_similarity(realSystem, DigitalTwins)
-
-    time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins)
+    a = 0.03  # a為時間間隔誤差
+    time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins, a)
     Output_frequecy_and_time_gap(time_accuray_and_relation)
 
     print("compare_response_count:", compare_response_count(realSystem_list, DigitalTwins_list))

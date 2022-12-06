@@ -1,0 +1,308 @@
+[
+  {
+    "IP": {
+      "src_IP": "c0a8020d",
+      "dest_IP": "c0a802ca"
+    },
+    "time": "1668498980.997268",
+    "TPKT": [
+      "03",
+      "00",
+      "0129"
+    ],
+    "COTP": [
+      "02",
+      "f0",
+      "80"
+    ],
+    "ISO8327A": [
+      "01",
+      "00"
+    ],
+    "ISO8327B": [
+      "01",
+      "00"
+    ],
+    "ISO8823": [
+      {
+        "User-Data": [
+          {
+            "Fully-Encoded-data": [
+              {
+                "PDV-list": [
+                  {
+                    "presentation-context-identifier": "03"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "MMS": [
+      {
+        "confirmed_ResponsePDU": [
+          {
+            "invokeID": "60"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "IP": {
+      "src_IP": "c0a8020d",
+      "dest_IP": "c0a802ca"
+    },
+    "time": "1668498981.002639",
+    "TPKT": [
+      "03",
+      "00",
+      "0129"
+    ],
+    "COTP": [
+      "02",
+      "f0",
+      "80"
+    ],
+    "ISO8327A": [
+      "01",
+      "00"
+    ],
+    "ISO8327B": [
+      "01",
+      "00"
+    ],
+    "ISO8823": [
+      {
+        "User-Data": [
+          {
+            "Fully-Encoded-data": [
+              {
+                "PDV-list": [
+                  {
+                    "presentation-context-identifier": "03"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "MMS": [
+      {
+        "confirmed_ResponsePDU": [
+          {
+            "invokeID": "65"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "IP": {
+      "src_IP": "c0a8020b",
+      "dest_IP": "c0a802ca"
+    },
+    "time": "1668498995.609634",
+    "TPKT": [
+      "03",
+      "00",
+      "0129"
+    ],
+    "COTP": [
+      "02",
+      "f0",
+      "80"
+    ],
+    "ISO8327A": [
+      "01",
+      "00"
+    ],
+    "ISO8327B": [
+      "01",
+      "00"
+    ],
+    "ISO8823": [
+      {
+        "User-Data": [
+          {
+            "Fully-Encoded-data": [
+              {
+                "PDV-list": [
+                  {
+                    "presentation-context-identifier": "03"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "MMS": [
+      {
+        "confirmed_ResponsePDU": [
+          {
+            "invokeID": "61"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "IP": {
+      "src_IP": "c0a8020b",
+      "dest_IP": "c0a802ca"
+    },
+    "time": "1668498995.635602",
+    "TPKT": [
+      "03",
+      "00",
+      "0129"
+    ],
+    "COTP": [
+      "02",
+      "f0",
+      "80"
+    ],
+    "ISO8327A": [
+      "01",
+      "00"
+    ],
+    "ISO8327B": [
+      "01",
+      "00"
+    ],
+    "ISO8823": [
+      {
+        "User-Data": [
+          {
+            "Fully-Encoded-data": [
+              {
+                "PDV-list": [
+                  {
+                    "presentation-context-identifier": "03"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "MMS": [
+      {
+        "confirmed_ResponsePDU": [
+          {
+            "invokeID": "66"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "IP": {
+      "src_IP": "c0a8020c",
+      "dest_IP": "c0a802ca"
+    },
+    "time": "1668499006.895239",
+    "TPKT": [
+      "03",
+      "00",
+      "0129"
+    ],
+    "COTP": [
+      "02",
+      "f0",
+      "80"
+    ],
+    "ISO8327A": [
+      "01",
+      "00"
+    ],
+    "ISO8327B": [
+      "01",
+      "00"
+    ],
+    "ISO8823": [
+      {
+        "User-Data": [
+          {
+            "Fully-Encoded-data": [
+              {
+                "PDV-list": [
+                  {
+                    "presentation-context-identifier": "03"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "MMS": [
+      {
+        "confirmed_ResponsePDU": [
+          {
+            "invokeID": "63"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "IP": {
+      "src_IP": "c0a8020c",
+      "dest_IP": "c0a802ca"
+    },
+    "time": "1668499006.921449",
+    "TPKT": [
+      "03",
+      "00",
+      "0129"
+    ],
+    "COTP": [
+      "02",
+      "f0",
+      "80"
+    ],
+    "ISO8327A": [
+      "01",
+      "00"
+    ],
+    "ISO8327B": [
+      "01",
+      "00"
+    ],
+    "ISO8823": [
+      {
+        "User-Data": [
+          {
+            "Fully-Encoded-data": [
+              {
+                "PDV-list": [
+                  {
+                    "presentation-context-identifier": "03"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "MMS": [
+      {
+        "confirmed_ResponsePDU": [
+          {
+            "invokeID": "68"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -112,7 +112,8 @@ if __name__ == '__main__':
     ip_similarity: float = (float(src_ip)+float(dst_ip)+float(src_ip_num)+float(dst_ip_num))/4
 
     # Time gap similarity, Frequency similarity, Packet Sum similarity
-    time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins)
+    miss_rate: float = 0.03  # 時間間隔的誤差
+    time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins, miss_rate)
     Output_frequecy_and_time_gap(time_accuray_and_relation)
     time_accuray_and_relation_result = 0.0
     for i in time_accuray_and_relation['average']:

@@ -462,8 +462,8 @@ def find_accuray_mms(real, digital, a):
     return mms_dict
 
 
-real = rdpcap('s2-morning.pcap')
-digital = rdpcap('situation2_morning_1130.pcap')
-a = 0.03  # a為時間間隔的誤差
-time_accuray_and_relation = find_accuray_mms(real, digital, a)
+# real = rdpcap('s2-morning.pcap')
+# digital = rdpcap('situation2_morning_1130.pcap')
+# a = 0.03  # a為時間間隔的誤差
+# time_accuray_and_relation = find_accuray_mms(real, digital, a)
 # print(time_accuray_and_relation['frequency'][7])

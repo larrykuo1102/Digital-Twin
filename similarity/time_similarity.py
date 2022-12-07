@@ -3,7 +3,7 @@ import binascii
 from scapy.all import *
 
 
-def caculate_time(real, digital):  # 計算所有時間
+def caculate_time(real, digital):  # 計算所有時間 #real為real封包，digital為digital封包
     real_time = []
     digital_time = []
     real_time_gap = []
@@ -48,14 +48,10 @@ def caculate_time(real, digital):  # 計算所有時間
     time_gap_real = real_time[len(real_time)-1]-real_time[0]
     #freq_real = (len(real_time)-1)/time_gap_real
     time_gap_digital = digital_time[len(digital_time)-1]-digital_time[0]
-    #freq_digital = (len(digital_time)-1)/time_gap_digital
-    # print(len(real_time)-1)
-    # print(freq_real)
-   # print(freq_digital)
     return time_gap_real, time_gap_digital, time_accuray
 
 
-def caculate_time2(real, digital, number1, number2, x):  # 計算時間在mms number1是real的mms位置 number2是digital的mms位置
+def caculate_time2(real, digital, number1, number2, x):  # 計算時間在mms number1是real的mms位置 number2是digital的mms位置 #real為real的封包，digital為digital封包，x為時間間隔門檻參數
     real_time = []
     digital_time = []
     real_time_gap = []
@@ -90,7 +86,7 @@ def caculate_time2(real, digital, number1, number2, x):  # 計算時間在mms nu
     return time_gap_real, time_gap_digital, time_accuray, real_time_gap, len(real_time_gap), digital_time_gap
 
 
-def caculate_frequency_mms(real, digital, real_mms, digital_mms, real_total, digital_total):
+def caculate_frequency_mms(real, digital, real_mms, digital_mms, real_total, digital_total):  # 計算在固定時間內 digital跟real的發送封包，進而得出頻率
     real_time = []
     digital_time = []
     total = 0
@@ -121,13 +117,13 @@ def caculate_frequency_mms(real, digital, real_mms, digital_mms, real_total, dig
     return real_freq, digital_freq
 
 
-def caculate_accuray_frequency(real_freq, digital_freq):
+def caculate_accuray_frequency(real_freq, digital_freq):  # 計算real跟digital的頻率準確度  #real_freq為real在固定時間內的頻率，digital_freq為digital在固定時間內的頻率
 
     total_percent = 100-(((abs(real_freq-digital_freq))/real_freq)*100)
     return total_percent
 
 
-def caculate_accuray_total(real_mms_total, digital_mms_total):
+def caculate_accuray_total(real_mms_total, digital_mms_total):  # 計算real跟digital的ip關係準確度 ##real_total為real在固定封包長度的數量，digital_freq為digital在固定封包長度的數量
     if abs(real_mms_total-digital_mms_total) == 0:
         total_percent = 100
     else:
@@ -135,7 +131,7 @@ def caculate_accuray_total(real_mms_total, digital_mms_total):
     return total_percent
 
 
-def find_mms(pkt):
+def find_mms(pkt):  # pkt為封包
     a = 0  # a是紀錄位置
     b = 0  # b是紀錄個數
     record_mms = []
@@ -150,7 +146,7 @@ def find_mms(pkt):
     return record_mms, b
 
 
-def find_mechine_mms(pkt, string):  # 找一個src到隨機的dest封包
+def find_mechine_mms(pkt, string):  # 找一個src到隨機的dest封包 #pkt為封包，string為要固定的src
     a = 0  # 紀錄mms位置
     b = 0  # 紀錄個數
     string2 = str()
@@ -175,9 +171,9 @@ def find_mechine_mms(pkt, string):  # 找一個src到隨機的dest封包
     return record_mechine, b
 
 
-def find_mechine_mms_fixed_dest(pkt, string, dest):  # 找一個src到固定的dest封包
-    a = 0
-    b = 0
+def find_mechine_mms_fixed_dest(pkt, string, dest):  # 找一個src到固定的dest封包 #pkt為封包，string為要固定的src，dest為要固定的dest
+    a = 0  # 紀錄固定src ip到固定dest ip的位置
+    b = 0  # 紀錄固定src ip到固定dest ip的數量
     Source_1 = str()
     record_mechine = []
     #record_mechine_mms_number = []
@@ -200,7 +196,7 @@ def find_mechine_mms_fixed_dest(pkt, string, dest):  # 找一個src到固定的d
     return record_mechine, b
 
 
-def find_total_mms_fixed_dest(real_pkt, digital_packet, string, dest, real_length, digital_length):  # 找一個src到固定的dest封包
+def find_total_mms_fixed_dest(real_pkt, digital_packet, string, dest, real_length, digital_length):  # 計算在固定長度中固定src到固定的dest封包數量 #string為要固定的src,dest為要固定的dest
     if (real_length > digital_length):
         compare_length = digital_length
     else:
@@ -254,7 +250,7 @@ def find_total_mms_fixed_dest(real_pkt, digital_packet, string, dest, real_lengt
     return b
 
 
-def find_total_mms(real_pkt, digital_packet, string, real_length, digital_length):  # 找一個src到固定的dest封包
+def find_total_mms(real_pkt, digital_packet, string, real_length, digital_length):  # 計算在固定長度中固定src的封包數量 #string為要固定的src
     a = 0
     b = 0
     Source_1 = str()
@@ -328,13 +324,14 @@ def find_accuray_mms(real, digital, a):
     #write_file(real_mms[0], "real_mms")
     #write_file(digital_mms[0], "digital_mms")
 
-    real_mechine_11 = find_mechine_mms(real, mechine[0])
-    digital_mechine_11 = find_mechine_mms(digital, mechine[0])
-    total_11 = find_total_mms(real, digital, mechine[0], real_mms[1], digital_mms[1])
-    last_time_mms_11 = caculate_time2(real, digital, real_mechine_11[0], digital_mechine_11[0], a)
-    freq_11 = caculate_frequency_mms(real, digital, real_mechine_11[0], digital_mechine_11[0], real_mechine_11[1], digital_mechine_11[1])
-    accuray_freq_11 = caculate_accuray_frequency(freq_11[0], freq_11[1])  # 0是real 1是digital
-    accuray_total_11 = caculate_accuray_total(total_11, digital_mechine_11[1])
+    real_mechine_11 = find_mechine_mms(real, mechine[0])  # 找real 封包中src ip =11(IDE)到202(HMI) 且protocal是mms的
+    digital_mechine_11 = find_mechine_mms(digital, mechine[0])  # 找digital 封包中src ip =11(IED)到202(HMI) 且protocal是mms的
+    total_11 = find_total_mms(real, digital, mechine[0], real_mms[1], digital_mms[1])  # 計算在固定長度中src ip =11到202的封包數量
+    last_time_mms_11 = caculate_time2(real, digital, real_mechine_11[0], digital_mechine_11[0], a)  # 計算src ip =11到202的時間間隔
+    freq_11 = caculate_frequency_mms(real, digital, real_mechine_11[0], digital_mechine_11[0],
+                                     real_mechine_11[1], digital_mechine_11[1])  # 計算src ip =11到202固定時間內發送的封包頻率
+    accuray_freq_11 = caculate_accuray_frequency(freq_11[0], freq_11[1])  # 0是real 1是digital #比較digital跟real的頻率準確度
+    accuray_total_11 = caculate_accuray_total(total_11, digital_mechine_11[1])  # 比較digital跟real的關係數量準確度
     #write_file(real_mechine_11[0], "real_mechine_11")
     #write_file(digital_mechine_11[0], "digital_mechine_11")
 
@@ -368,14 +365,14 @@ def find_accuray_mms(real, digital, a):
     #write_file(real_mechine_202[0], "real_mechine_202")
     #write_file(digital_mechine_202[0], "digital_mechine_202")
 
-    real_mechine_202_to_11 = find_mechine_mms_fixed_dest(real, mechine[3], dest[1])
-    digital_mechine_202_to_11 = find_mechine_mms_fixed_dest(digital, mechine[3], dest[1])
-    total_202_to_11 = find_total_mms_fixed_dest(real, digital, mechine[3], dest[1], real_mms[1], digital_mms[1])
-    last_time_mms_202_to_11 = caculate_time2(real, digital, real_mechine_202_to_11[0], digital_mechine_202_to_11[0], a)
+    real_mechine_202_to_11 = find_mechine_mms_fixed_dest(real, mechine[3], dest[1])  # 找real 封包中HMI(202)到IED (11)且protocal是mms的
+    digital_mechine_202_to_11 = find_mechine_mms_fixed_dest(digital, mechine[3], dest[1])  # 找digital 封包中HMI(202)到IED(11) 且protocal是mms的
+    total_202_to_11 = find_total_mms_fixed_dest(real, digital, mechine[3], dest[1], real_mms[1], digital_mms[1])  # 計算在固定長度中src ip =202到11的封包數量
+    last_time_mms_202_to_11 = caculate_time2(real, digital, real_mechine_202_to_11[0], digital_mechine_202_to_11[0], a)  # 計算src ip =11到202的時間間隔
     freq_202_to_11 = caculate_frequency_mms(
-        real, digital, real_mechine_202_to_11[0], digital_mechine_202_to_11[0], real_mechine_202_to_11[1], digital_mechine_202_to_11[1])
-    accuray_freq_202_to_11 = caculate_accuray_frequency(freq_202_to_11[0], freq_202_to_11[1])  # 0是real 1是digital
-    accuray_total_202_to_11 = caculate_accuray_total(total_202_to_11, digital_mechine_202_to_11[1])
+        real, digital, real_mechine_202_to_11[0], digital_mechine_202_to_11[0], real_mechine_202_to_11[1], digital_mechine_202_to_11[1])  # 計算src ip =11到202固定時間內發送的封包頻率
+    accuray_freq_202_to_11 = caculate_accuray_frequency(freq_202_to_11[0], freq_202_to_11[1])  # 0是real 1是digital #比較digital跟real的頻率準確度
+    accuray_total_202_to_11 = caculate_accuray_total(total_202_to_11, digital_mechine_202_to_11[1])  # 比較digital跟real的關係數量準確度
     #write_file(real_mechine_202_to_11[0], "real_mechine_202_to_11")
     #write_file(digital_mechine_202_to_11[0], "digital_mechine_202_to_11")
 
@@ -412,7 +409,6 @@ def find_accuray_mms(real, digital, a):
     # print("digital total:", len(digital))
     # print("real_mms total:", real_mms[1])
     # print("digital_mms total:", digital_mms[1])
-
     # print("real_mms_11 to 202 total:", real_mechine_11[1])
     # print("digital_mms_11 to 202 total:", digital_mechine_11[1])
     # print("real_mms_12 to 202 total:", real_mechine_12[1])
@@ -430,7 +426,7 @@ def find_accuray_mms(real, digital, a):
     average_accuracy_total = (accuray_total_11+accuray_total_12+accuray_total_13 +
                               accuray_total_202_to_11+accuray_total_202_to_12+accuray_total_202_to_13)/6
     # print()
-    average_accuracy_time = (last_time_mms_11[2]+last_time_mms_12[2]+last_time_mms_13[2])/3  # 只考慮response的時間
+    average_accuracy_time = (last_time_mms_11[2]+last_time_mms_12[2]+last_time_mms_13[2])/3  # 只考慮request的時間
     time_value = [last_time[2], last_time_mms[2], last_time_mms_11[2], last_time_mms_12[2], last_time_mms_13[2],
                   last_time_mms_202[2], last_time_mms_202_to_11[2], last_time_mms_202_to_12[2], last_time_mms_202_to_13[2], average_accuracy_time]
     # print("time")
@@ -450,7 +446,7 @@ def find_accuray_mms(real, digital, a):
                        accuray_freq_202_to_11, accuray_freq_202_to_12, accuray_freq_202_to_13]
     average = [average_accuracy_total, average_accuracy_time, average_accuracy_frequency]
     # print("frequency")
-    #print("mms frequency: accuray", accuray_freq_mms, "%")
+    # print("mms frequency: accuray", accuray_freq_mms, "%")
     # print("mms_11 to 202 frequency: accuray", accuray_freq_11, "%")
     # print("mms_12 to 202 frequency: accuray", accuray_freq_12, "%")
     # print("mms_13 to 202 frequency: accuray", accuray_freq_13, "%")
@@ -466,8 +462,8 @@ def find_accuray_mms(real, digital, a):
     return mms_dict
 
 
-real = rdpcap('s1-morning.pcap')
-digital = rdpcap('situation1_morning_again.pcap')
+real = rdpcap('s2-morning.pcap')
+digital = rdpcap('situation2_morning_1130.pcap')
 a = 0.03  # a為時間間隔的誤差
 time_accuray_and_relation = find_accuray_mms(real, digital, a)
 # print(time_accuray_and_relation['frequency'][7])

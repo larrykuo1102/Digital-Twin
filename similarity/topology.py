@@ -50,13 +50,7 @@ def compare_topology_similarity(pkt1, pkt2):    # compare_topology_similarity：
     pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num = find_topology(pkt1)
     pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = find_topology(pkt2)
 
-    if pkt1_src_ip == pkt2_src_ip:
-        src_ip = 100
-    if pkt1_dst_ip == pkt2_dst_ip:
-        dst_ip = 100
-    if pkt1_src_ip_num == pkt2_src_ip_num:
-        src_ip_num = 100
-    if pkt1_dst_ip_num == pkt2_dst_ip_num:
-        dst_ip_num = 100
+    src_ip_num = (pkt2_src_ip_num / pkt1_src_ip_num) * 100  # 計算出相似度之%數
+    dst_ip_num = (pkt2_dst_ip_num / pkt1_dst_ip_num) * 100
 
-    return src_ip, dst_ip, src_ip_num, dst_ip_num, pkt1_src_ip,  pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num
+    return src_ip_num, dst_ip_num, pkt1_src_ip,  pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num

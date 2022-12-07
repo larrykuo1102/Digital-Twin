@@ -102,14 +102,12 @@ if __name__ == '__main__':
     print('begin similarity\n')
 
     # IP similarity
-    src_ip, dst_ip, src_ip_num, dst_ip_num, pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
+    src_ip_num, dst_ip_num, pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
         realSystem, DigitalTwins)
 
-    print("mms_src_ip similarity:", src_ip, "%")
-    print("mms_dst_ip similarity:", dst_ip, "%")
     print("mms_src_ip_num similarity:", src_ip_num, "%")
     print("mms_dst_ip_num similarity:", dst_ip_num, "%\n")
-    ip_similarity: float = (float(src_ip)+float(dst_ip)+float(src_ip_num)+float(dst_ip_num))/4
+    ip_similarity: float = (float(src_ip_num)+float(dst_ip_num))/2
 
     # Time gap similarity, Frequency similarity, Packet Sum similarity
     miss_rate: float = 0.03  # 時間間隔的誤差

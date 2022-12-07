@@ -1,0 +1,8 @@
+realSystem_src_ip {'192.168.2.12', '192.168.2.202', '192.168.2.13', '192.168.2.11'} 
+DigitalTwins_src_ip {'192.168.2.202', '192.168.2.12', '192.168.2.11', '192.168.2.13'} 
+realSystem_dst_ip {'192.168.2.12', '192.168.2.202', '192.168.2.13', '192.168.2.11'} 
+DigitalTwins_dst_ip {'192.168.2.202', '192.168.2.12', '192.168.2.11', '192.168.2.13'} 
+realSystem_src_ip_num 4 
+DigitalTwins_src_ip_num 4 
+realSystem_dst_ip_num 4 
+DigitalTwins_dst_ip_num 4

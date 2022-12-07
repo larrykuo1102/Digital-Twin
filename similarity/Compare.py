@@ -352,7 +352,7 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list, input_chance):
                     # all_itemID_similarity += 1
                     # print('fail', fail)
 
-            with open(f'Compare_MMS_Context/packet_{chance}_result.json', "w") as file:
+            with open(f'../Compare_MMS_Context/packet_{chance}_result.json', "w") as file:
                 json.dump(fail_list, file, indent=2)
             DigitalTwins_list = DigitalTwins_list[1:]
             # print('itemID similarity', all_itemID_similarity / packet_length, '%')

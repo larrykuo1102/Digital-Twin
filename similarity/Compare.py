@@ -1,48 +1,48 @@
 import json
 
-
-def align(real_sys: list, digital_twins: list):
-    # digital_twins_shift: int
-    # isAlign: bool = False
-    # MMS == true
-    # IP == true
-    # Request or Response == true
-    # read or Write == true
+# align
+# 取得對齊後的封包
+# args:
+#    real_sys: 真實系統的Packetlist(經過parser)
+#    digital_twin: 數位分身的Packetlist(經過parser)
+# return:
+#    對齊後packetlist(依序為real_sys, digital_twin)
+def align(real_sys: list, digital_twin: list):
     real_sys_shift = 0
     digital_twins_shift = 0
     isAlign = False
 
     while isAlign != True:
 
-        if digital_twins_shift == len(digital_twins) or real_sys_shift == len(real_sys):
+        if digital_twins_shift == len(digital_twin) or real_sys_shift == len(real_sys):
             break
 
         real_proto = Is_MMS_or_GOOSE(real_sys[real_sys_shift])
-
         if real_proto == None:
             print(real_sys[real_sys_shift])
             real_sys_shift += 1
             continue
 
-        digit_proto = Is_MMS_or_GOOSE(digital_twins[digital_twins_shift])
-
+        digit_proto = Is_MMS_or_GOOSE(digital_twin[digital_twins_shift])
+        # compare proto
         if real_proto == digit_proto:
             real_IP = getIP(real_sys[real_sys_shift])
-            digit_IP = getIP(digital_twins[digital_twins_shift])
+            digit_IP = getIP(digital_twin[digital_twins_shift])
+            # compare IP
             if real_IP == digit_IP:
                 if real_proto == "MMS":
                     # confirmed or unconfirmed
                     real_pdu = Is_Confirmed_or_UnConfirmed(
                         real_sys[real_sys_shift])
                     digit_pdu = Is_Confirmed_or_UnConfirmed(
-                        digital_twins[digital_twins_shift])
+                        digital_twin[digital_twins_shift])
                     if (real_pdu == digit_pdu) and (real_pdu != None):
                         if real_pdu == "unconfirmed":
                             # read or write
                             real_re = Is_Read_or_Write(
                                 real_sys[real_sys_shift])
                             digit_re = Is_Read_or_Write(
-                                digital_twins[digital_twins_shift])
+                                digital_twin[digital_twins_shift])
                             if (real_re == digit_re) and (real_re != None):
                                 isAlign = True
                                 break
@@ -51,13 +51,13 @@ def align(real_sys: list, digital_twins: list):
                             real_re = Is_Request_or_Response(
                                 real_sys[real_sys_shift])
                             digit_re = Is_Request_or_Response(
-                                digital_twins[digital_twins_shift])
+                                digital_twin[digital_twins_shift])
                             if (real_re == digit_re) and (real_re != None):
                                 # read or write
                                 real_re = Is_Read_or_Write(
                                     real_sys[real_sys_shift])
                                 digit_re = Is_Read_or_Write(
-                                    digital_twins[digital_twins_shift])
+                                    digital_twin[digital_twins_shift])
                                 if (real_re == digit_re) and (real_re != None):
                                     isAlign = True
                                     break
@@ -70,18 +70,31 @@ def align(real_sys: list, digital_twins: list):
             pass
 
         digital_twins_shift += 1
-        if digital_twins_shift == len(digital_twins):
+        if digital_twins_shift == len(digital_twin):
             real_sys_shift += 1
             digital_twins_shift = 0
 
-    return real_sys[real_sys_shift:], digital_twins[digital_twins_shift:]
+    return real_sys[real_sys_shift:], digital_twin[digital_twins_shift:]
 
 
+# getIP
+# 取得單筆封包的IP
+# args:
+#    pkt: 單筆封包(經過Parser)
+# return:
+#    封包的IP值
 def getIP(pkt: dict) -> dict:
     pktlist = list(pkt.values())
     return pktlist[0]
 
 
+# Is_MMS_or_GOOSE
+# 判斷單筆封包的是否為MMS或是GOOSE
+# args:
+#    pkt: 單筆封包(經過Parser)
+# return:
+#    If 封包為 GOOSE or MMS return 該值
+#    Else 回傳 None 值
 def Is_MMS_or_GOOSE(pkt: dict):
     pktlist = list(pkt.keys())
     proto = pktlist[len(pktlist)-1]
@@ -91,6 +104,13 @@ def Is_MMS_or_GOOSE(pkt: dict):
         return None
 
 
+# Is_Request_or_Response
+# 判斷單筆封包的是否為Request或是Response
+# args:
+#    pkt: 單筆封包(經過Parser)
+# return:
+#    If 封包為 Request or Response return 該值
+#    Else 回傳 None 值
 def Is_Request_or_Response(pkt: dict):
     tag = pkt.get("MMS")
     assert tag != None
@@ -103,6 +123,13 @@ def Is_Request_or_Response(pkt: dict):
         return None
 
 
+# Is_Confirmed_or_UnConfirmed
+# 判斷單筆封包的是否為Confirmed或是Unconfirmed
+# args:
+#    pkt: 單筆封包(經過Parser)
+# return:
+#    If 封包為 Confirmed or Unconfirmed return 該值
+#    Else 回傳 None 值
 def Is_Confirmed_or_UnConfirmed(pkt: dict):
     tag = pkt.get("MMS")
     assert tag != None
@@ -115,6 +142,13 @@ def Is_Confirmed_or_UnConfirmed(pkt: dict):
         return None
 
 
+# Is_Read_or_Write
+# 判斷單筆封包的是否為Read或是Write
+# args:
+#    pkt: 單筆封包(經過Parser)
+# return:
+#    If 封包為 Read or Write return 該值
+#    Else 回傳 None 值
 def Is_Read_or_Write(pkt: dict):
     tag = pkt.get("MMS")
     assert tag != None
@@ -132,6 +166,13 @@ def Is_Read_or_Write(pkt: dict):
         return None
 
 
+# Longest_Common_Subsequence
+# 判斷兩字串間的最長共同子序列
+# args:
+#    text1: 任意字串 
+#    text2: 任意字串 
+# return:
+#    最長共同子序列(以字串表示)
 def Longest_Common_Subsequence(text1: str, text2: str) -> str:
 
     (m, n) = (len(text1), len(text2))
@@ -307,7 +348,8 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list, input_chance):
                     digitaltwins_itemID = get_itemID(digitaltwins_temp)
                     realsystem_itemID = get_itemID(realsystem_temp)
                     all_itemID_count['RealSystem'] += len(realsystem_itemID)
-                    all_itemID_count['DigitalTwins'] += len(digitaltwins_itemID)
+                    all_itemID_count['DigitalTwins'] += len(
+                        digitaltwins_itemID)
                     itemID_similarity = 0.0
                     if len(realsystem_itemID) == 0 and len(digitaltwins_itemID) != 0:
                         all_itemID_similarity += 0
@@ -434,12 +476,25 @@ def compare_domainID(real_sys_ID: str, digit_twins_ID: str):
     return len(subsq) / len(real_sys_ID)
 
 
+# get_time
+# 取得單筆封包的時間
+# args:
+#    pkt: 單筆封包(Parser後)
+# return:
+#    時間
 def get_time(pkt: dict) -> float:
     time = pkt.get('time')
     assert time != None
     return float(time)
 
 
+# get_response_count
+# 取得時間內response個數,當elapsed為0 時，則不限制時間
+# args:
+#    pktlist: 經過Parser後的Packetlist
+#    elapsed: 經過的時間
+# return:
+#    時間內response個數
 def get_response_count(pktlist: list, elapsed=0.0):
     total = 0
     begin = 0.0
@@ -462,6 +517,13 @@ def get_response_count(pktlist: list, elapsed=0.0):
     return total
 
 
+# get_request_count
+# 取得時間內request個數,當elapsed為0 時，則不限制時間
+# args:
+#    pktlist: 經過Parser後的Packetlist
+#    elapsed: 經過的時間
+# return:
+#    時間內request個數
 def get_request_count(pktlist: list, elapsed=0.0):
     total = 0
     begin = 0.0
@@ -484,6 +546,13 @@ def get_request_count(pktlist: list, elapsed=0.0):
     return total
 
 
+# get_confirmed_count
+# 取得時間內confirmed個數,當elapsed為0 時，則不限制時間
+# args:
+#    pktlist: 經過Parser後的Packetlist
+#    elapsed: 經過的時間
+# return:
+#    時間內confirmed個數
 def get_confirmed_count(pktlist: list, elapsed=0.0):
     total = 0
     begin = 0.0
@@ -506,6 +575,13 @@ def get_confirmed_count(pktlist: list, elapsed=0.0):
     return total
 
 
+# get_unconfirmed_count
+# 取得時間內unconfirmed個數,當elapsed為0 時，則不限制時間
+# args:
+#    pktlist: 經過Parser後的Packetlist
+#    elapsed: 經過的時間
+# return:
+#    時間內unconfirmed個數
 def get_unconfirmed_count(pktlist: list, elapsed=0.0):
     total = 0
     begin = 0.0
@@ -528,6 +604,12 @@ def get_unconfirmed_count(pktlist: list, elapsed=0.0):
     return total
 
 
+# get_response_elapsed
+# 取得時間第一筆和最後一筆response 的時間差
+# args:
+#    pktlist: 經過Parser後的Packetlist
+# return:
+#    時間差
 def get_response_elapsed(pktlist: list):
     count = 0
     begin = 0.0
@@ -542,6 +624,12 @@ def get_response_elapsed(pktlist: list):
     return end - begin
 
 
+# get_request_elapsed
+# 取得時間第一筆和最後一筆request 的時間差
+# args:
+#    pktlist: 經過Parser後的Packetlist
+# return:
+#    時間差
 def get_request_elapsed(pktlist: list):
     count = 0
     begin = 0.0
@@ -556,6 +644,12 @@ def get_request_elapsed(pktlist: list):
     return end - begin
 
 
+# get_confirmed_elapsed
+# 取得時間第一筆和最後一筆confirmed 的時間差
+# args:
+#    pktlist: 經過Parser後的Packetlist
+# return:
+#    時間差
 def get_confirmed_elapsed(pktlist: list):
     count = 0
     begin = 0.0
@@ -570,6 +664,12 @@ def get_confirmed_elapsed(pktlist: list):
     return end - begin
 
 
+# get_unconfirmed_elapsed
+# 取得時間第一筆和最後一筆unconfirmed 的時間差
+# args:
+#    pktlist: 經過Parser後的Packetlist
+# return:
+#    時間差
 def get_unconfirmed_elapsed(pktlist: list):
     count = 0
     begin = 0.0
@@ -584,6 +684,13 @@ def get_unconfirmed_elapsed(pktlist: list):
     return end - begin
 
 
+# compare_confirmed_count
+# 取得兩封包間confirmed個數的相似度
+# args:
+#    real_sys: 真實系統的Packetlist(經過parser)
+#    digital_twin: 數位分身的Packetlist(經過parser)
+# return:
+#    相似度
 def compare_confirmed_count(real_sys_list: list, Digit_twins_list: list):
     real_elapsed = get_confirmed_elapsed(real_sys_list)
     twins_elapsed = get_confirmed_elapsed(Digit_twins_list)
@@ -597,6 +704,13 @@ def compare_confirmed_count(real_sys_list: list, Digit_twins_list: list):
     return 1 - abs(real_count-twins_count) / real_count
 
 
+# compare_unconfirmed_count
+# 取得兩封包間unconfirmed個數的相似度
+# args:
+#    real_sys: 真實系統的Packetlist(經過parser)
+#    digital_twin: 數位分身的Packetlist(經過parser)
+# return:
+#    相似度
 def compare_unconfirmed_count(real_sys_list: list, Digit_twins_list: list):
     real_elapsed = get_unconfirmed_elapsed(real_sys_list)
     twins_elapsed = get_unconfirmed_elapsed(Digit_twins_list)
@@ -614,6 +728,13 @@ def compare_unconfirmed_count(real_sys_list: list, Digit_twins_list: list):
     return result
 
 
+# compare_request_count
+# 取得兩封包間request個數的相似度
+# args:
+#    real_sys: 真實系統的Packetlist(經過parser)
+#    digital_twin: 數位分身的Packetlist(經過parser)
+# return:
+#    相似度
 def compare_request_count(real_sys_list: list, Digit_twins_list: list):
     real_elapsed = get_request_elapsed(real_sys_list)
     twins_elapsed = get_request_elapsed(Digit_twins_list)
@@ -627,6 +748,13 @@ def compare_request_count(real_sys_list: list, Digit_twins_list: list):
     return 1 - abs(real_count-twins_count) / real_count
 
 
+# comapre_response_count
+# 取得兩封包間response個數的相似度
+# args:
+#    real_sys: 真實系統的Packetlist(經過parser)
+#    digital_twin: 數位分身的Packetlist(經過parser)
+# return:
+#    相似度
 def compare_response_count(real_sys_list: list, Digit_twins_list: list):
     real_elapsed = get_response_elapsed(real_sys_list)
     twins_elapsed = get_response_elapsed(Digit_twins_list)

@@ -1,5 +1,6 @@
 import json
 
+
 # align
 # 取得對齊後的封包
 # args:
@@ -169,8 +170,8 @@ def Is_Read_or_Write(pkt: dict):
 # Longest_Common_Subsequence
 # 判斷兩字串間的最長共同子序列
 # args:
-#    text1: 任意字串 
-#    text2: 任意字串 
+#    text1: 任意字串
+#    text2: 任意字串
 # return:
 #    最長共同子序列(以字串表示)
 def Longest_Common_Subsequence(text1: str, text2: str) -> str:

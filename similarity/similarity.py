@@ -117,7 +117,6 @@ if __name__ == '__main__':
     coompare_ip_relation_result = float(time_accuray_and_relation['average'][0])/100
     coompare_time_gap_result = float(time_accuray_and_relation['average'][1])/100
     coompare_ip_frequency_result = float(time_accuray_and_relation['average'][2])/100
-    # time_accuray_and_relation_result = time_accuray_and_relation_result/len(time_accuray_and_relation['average'])
 
     # request and response sum similarity
     compare_request_count_result = compare_request_count(realSystem_list, DigitalTwins_list)
@@ -133,6 +132,7 @@ if __name__ == '__main__':
 
     compare_request_response_result = (compare_request_count_result + compare_response_count_result) / 2
     compare_confirmed_unconfirmed_result = (compare_confirmed_count_result*0.9 + compare_unconfirmed_count_result*0.1)
+
     # MMS context similarity
     compare_MMS_context_result = compare_MMS_Context(realSystem_list, DigitalTwins_list, 3)
     Output_Compare_MMS_Context(compare_MMS_context_result)

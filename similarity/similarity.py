@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     print("mms_src_ip_num similarity:", src_ip_num, "%")
     print("mms_dst_ip_num similarity:", dst_ip_num, "%\n")
-    ip_similarity_result: float = (float(src_ip_num)+float(dst_ip_num))/2/100
+    ip_similarity_result: float = (float(src_ip_num)+float(dst_ip_num))/2
 
     # Time gap similarity, Frequency similarity, Packet Sum similarity
     miss_rate: float = 0.03  # 時間間隔的誤差

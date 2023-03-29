@@ -1,5 +1,6 @@
 import json
 
+
 # align
 # 取得對齊後的封包
 # args:
@@ -169,8 +170,8 @@ def Is_Read_or_Write(pkt: dict):
 # Longest_Common_Subsequence
 # 判斷兩字串間的最長共同子序列
 # args:
-#    text1: 任意字串 
-#    text2: 任意字串 
+#    text1: 任意字串
+#    text2: 任意字串
 # return:
 #    最長共同子序列(以字串表示)
 def Longest_Common_Subsequence(text1: str, text2: str) -> str:
@@ -225,20 +226,16 @@ module_map = {
 input_module = []
 
 
-def compare_MMS_module(twins: dict, module_name: str):  # parsered result
+def compare_MMS_module(twins: dict, module_name: str):  # input: parsered result
     if (module_name == 'MMS'):
         input_module.clear()
     # 有沒有符合 module
     check_valid: bool = True
-    # next_dict: dict = twins.get(module_name)
-    next_list: list = twins.get(module_name)
-    map_list = module_map.get(module_name)
+    next_list: list = twins.get(module_name)  # go to the next level of module tree
+    map_list = module_map.get(module_name)  # get module from module_map
     input_module.append(module_name)
     # print(module_name)
     if (next_list != None and map_list != None):
-        # next_dict = next_list[0]
-
-        # print(map_list)
 
         for next_dict in next_list:
 
@@ -263,7 +260,7 @@ def compare_MMS_module(twins: dict, module_name: str):  # parsered result
                     else:
                         check_valid = False
                         assert False, f'module Error {neccessary} missed'
-    elif (map_list == None):
+    elif (map_list == None):  # which is not belong to any map_module, it would be a value
         if (module_name == 'ObjectName'):
             # print('ObjectName similarity')
             pass
@@ -282,8 +279,6 @@ def compare_MMS_module(twins: dict, module_name: str):  # parsered result
             # print('invokeID similarity')
             pass
         return True
-    else:
-        check = False
 
     if (check_valid == False):
         return False
@@ -309,8 +304,10 @@ def get_domainID(module_list: list):
     return result
 
 
-# compare_MMS(twins, "MMS")
-def compare_MMS_Context(realSystem_list, DigitalTwins_list, input_chance):
+def compare_MMS_Context(realSystem_list, DigitalTwins_list, input_chance):  # input: two parsered result and 1 value of chance
+    # have n times chance
+    # 1. compare the module_map
+    # 2. compare itemID and domainID
     chance = input_chance
     num = chance
     chance_domainID = []
@@ -339,6 +336,7 @@ def compare_MMS_Context(realSystem_list, DigitalTwins_list, input_chance):
 
             for real, digital in zip(realSystem_list, DigitalTwins_list):
                 try:
+                    # compare two MMS module and get a list which contains itemID's value and domainID's value
                     digitaltwins_temp = compare_MMS_module(
                         digital, 'MMS').copy()
                     realsystem_temp = compare_MMS_module(real, 'MMS').copy()

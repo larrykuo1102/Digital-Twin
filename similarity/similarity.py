@@ -102,23 +102,21 @@ if __name__ == '__main__':
     print('begin similarity\n')
 
     # IP similarity
-    src_ip, dst_ip, src_ip_num, dst_ip_num, pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
+    src_ip_num, dst_ip_num, pkt1_src_ip, pkt1_dst_ip, pkt1_src_ip_num, pkt1_dst_ip_num, pkt2_src_ip, pkt2_dst_ip, pkt2_src_ip_num, pkt2_dst_ip_num = compare_topology_similarity(
         realSystem, DigitalTwins)
 
-    print("mms_src_ip similarity:", src_ip, "%")
-    print("mms_dst_ip similarity:", dst_ip, "%")
     print("mms_src_ip_num similarity:", src_ip_num, "%")
     print("mms_dst_ip_num similarity:", dst_ip_num, "%\n")
-    ip_similarity: float = (float(src_ip)+float(dst_ip)+float(src_ip_num)+float(dst_ip_num))/4
+    ip_similarity_result: float = (float(src_ip_num)+float(dst_ip_num))/2/100
 
     # Time gap similarity, Frequency similarity, Packet Sum similarity
     miss_rate: float = 0.03  # 時間間隔的誤差
     time_accuray_and_relation = find_accuray_mms(realSystem, DigitalTwins, miss_rate)
     Output_frequecy_and_time_gap(time_accuray_and_relation)
     time_accuray_and_relation_result = 0.0
-    for i in time_accuray_and_relation['average']:
-        time_accuray_and_relation_result += float(i)
-    time_accuray_and_relation_result = time_accuray_and_relation_result/len(time_accuray_and_relation['average'])
+    coompare_ip_relation_result = float(time_accuray_and_relation['average'][0])/100
+    coompare_time_gap_result = float(time_accuray_and_relation['average'][1])/100
+    coompare_ip_frequency_result = float(time_accuray_and_relation['average'][2])/100
 
     # request and response sum similarity
     compare_request_count_result = compare_request_count(realSystem_list, DigitalTwins_list)
@@ -134,14 +132,16 @@ if __name__ == '__main__':
 
     compare_request_response_result = (compare_request_count_result + compare_response_count_result) / 2
     compare_confirmed_unconfirmed_result = (compare_confirmed_count_result*0.9 + compare_unconfirmed_count_result*0.1)
+
     # MMS context similarity
     compare_MMS_context_result = compare_MMS_Context(realSystem_list, DigitalTwins_list, 3)
     Output_Compare_MMS_Context(compare_MMS_context_result)
-    compare_MMS = float(compare_MMS_context_result['result']['summary']) * 0.5 + float(compare_MMS_context_result['result']['count_similarity']) * 0.5
+    compare_MMS_result = float(compare_MMS_context_result['result']['summary']) * 0.5 + \
+        float(compare_MMS_context_result['result']['count_similarity']) * 0.5
 
-    final_result = (compare_request_response_result*0.5+compare_confirmed_unconfirmed_result*0.5) + \
-        compare_MMS + ip_similarity/100 + time_accuray_and_relation_result/100
-    final_result = final_result/4
+    final_result = compare_request_response_result + compare_confirmed_unconfirmed_result + \
+        compare_MMS_result + ip_similarity_result + coompare_time_gap_result + coompare_ip_relation_result + coompare_ip_frequency_result
+    final_result = final_result/7
     print("final similarity is :", final_result)
     # similarity report
     print('\nsimilarity report')

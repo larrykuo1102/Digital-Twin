@@ -98,16 +98,20 @@ def caculate_frequency_mms(real, digital, real_mms, digital_mms, real_total, dig
     digital_time_total = digital_time[len(digital_time)-1]-digital_time[0]
     if (real_time_total > digital_time_total):
         compare_time = digital_time_total
-        for i in range(0, len(real_time)):
+        for i in range(0, len(real_time)-1):
             if (real_time[real_mms[i]] < real_time[real_mms[0]]+compare_time):
                 total = total+1
             else:
                 break
         digital_freq = digital_total/compare_time
         real_freq = total/compare_time
+    elif (real_time_total == digital_time_total):
+        compare_time = real_time_total
+        digital_freq = digital_total/compare_time
+        real_freq = real_total/compare_time
     else:
         compare_time = real_time_total
-        for i in range(0, len(digital_time)):
+        for i in range(0, len(digital_time)-1):
             if (digital_time[digital_mms[i]] < digital_time[digital_mms[0]]+digital_time):
                 total = total+1
             else:
@@ -124,7 +128,7 @@ def caculate_accuray_frequency(real_freq, digital_freq):  # 計算real跟digital
 
 
 def caculate_accuray_total(real_mms_total, digital_mms_total):  # 計算real跟digital的ip關係準確度 ##real_total為real在固定封包長度的數量，digital_freq為digital在固定封包長度的數量
-    if abs(real_mms_total-digital_mms_total) == 0:
+    if abs(real_mms_total-digital_mms_total) == 0 or real_mms_total == 0:
         total_percent = 100
     else:
         total_percent = 100-(((abs(real_mms_total-digital_mms_total))/real_mms_total)*100)
@@ -197,10 +201,6 @@ def find_mechine_mms_fixed_dest(pkt, string, dest):  # 找一個src到固定的d
 
 
 def find_total_mms_fixed_dest(real_pkt, digital_packet, string, dest, real_length, digital_length):  # 計算在固定長度中固定src到固定的dest封包數量 #string為要固定的src,dest為要固定的dest
-    if (real_length > digital_length):
-        compare_length = digital_length
-    else:
-        compare_length = real_length
     a = 0  # 紀錄mms位置
     b = 0  # 紀錄個數
     string2 = str()
@@ -279,22 +279,23 @@ def find_total_mms(real_pkt, digital_packet, string, real_length, digital_length
                 a = a-1
             if a == compare_length:
                 break
-        else:
-            compare_length = real_length
-            for n in range(0, len(digital_packet)):
-                c = 0
-                content = binascii.hexlify(bytes(digital_packet[n])).decode()
-                if (content.find(string) != -1 and content.find('0300') != -1 and content.find('02f080') != -1 and content[59] == Source_1):
-                    a = a+1
-                    b = b+1
-                    c = 1
+    else:
+        compare_length = real_length
 
-                if content.find('0300') != -1 and content.find('02f080') != -1:
-                    a = a+1
-                if c == 1:
-                    a = a-1
-                if a == compare_length:
-                    break
+        for n in range(0, len(digital_packet)):
+            c = 0
+            content = binascii.hexlify(bytes(digital_packet[n])).decode()
+            if (content.find(string) != -1 and content.find('0300') != -1 and content.find('02f080') != -1 and content[59] == Source_1):
+                a = a+1
+                b = b+1
+                c = 1
+
+            if content.find('0300') != -1 and content.find('02f080') != -1:
+                a = a+1
+            if c == 1:
+                a = a-1
+            if a == compare_length:
+                break
         # print(a)
     # print(compare_length)
     return b
@@ -409,22 +410,32 @@ def find_accuray_mms(real, digital, a):
     # print("digital total:", len(digital))
     # print("real_mms total:", real_mms[1])
     # print("digital_mms total:", digital_mms[1])
-    # print("real_mms_11 to 202 total:", real_mechine_11[1])
+    # print("real_mms_11 to 202 total:", total_11)
     # print("digital_mms_11 to 202 total:", digital_mechine_11[1])
-    # print("real_mms_12 to 202 total:", real_mechine_12[1])
+    # print("real_mms_12 to 202 total:", total_12)
     # print("digital_mms_12 to 202 total:", digital_mechine_12[1])
-    # print("real_mms_13 to 202 total:", real_mechine_13[1])
+    # print("real_mms_13 to 202 total:", total_13)
     # print("digital_mms_13 to 202 total:", digital_mechine_13[1])
-    # print("real_mms_202 total:", real_mechine_202[1])
+    # print("real_mms_202 total:", total_202)
     # print("digital_mms_202 total:", digital_mechine_202[1])
-    # print("real_mms_202 to 11 total:", real_mechine_202_to_11[1])
+    # print("real_mms_202 to 11 total:", total_202_to_11)
     # print("digital_mms_202 to 11 total:", digital_mechine_202_to_11[1])
-    # print("real_mms_202 to 12 total:", real_mechine_202_to_12[1])
+    # print("real_mms_202 to 12 total:", total_202_to_12)
     # print("digital_mms_202 to 12 total:", digital_mechine_202_to_12[1])
-    # print("real_mms_202 to 13 total:", real_mechine_202_to_13[1])
+    # print("real_mms_202 to 13 total:", total_202_to_13)
     # print("digital_mms_202 to 13 total:", digital_mechine_202_to_13[1])
     average_accuracy_total = (accuray_total_11+accuray_total_12+accuray_total_13 +
                               accuray_total_202_to_11+accuray_total_202_to_12+accuray_total_202_to_13)/6
+    # print()
+    # print("total")
+    # #print("mms time gap: accuray", last_time_mms[2], "%")
+    # print("mms_11 to 202 total: accuray", accuray_total_202_to_11, "%")
+    # print("mms_12 to 202 total: accuray", accuray_total_202_to_12, "%")
+    # print("mms_13 to 202 total: accuray", accuray_total_13, "%")
+    # print("mms_202 total: accuray", accuray_total_202, "%")
+    # print("mms_202 to 11 total: accuray", accuray_total_202_to_11, "%")
+    # print("mms_202 to 12 total: accuray", accuray_total_202_to_12, "%")
+    # print("mms_202 to 13 total: accuray", accuray_total_202_to_13, "%")
     # print()
     average_accuracy_time = (last_time_mms_11[2]+last_time_mms_12[2]+last_time_mms_13[2])/3  # 只考慮request的時間
     time_value = [last_time[2], last_time_mms[2], last_time_mms_11[2], last_time_mms_12[2], last_time_mms_13[2],
@@ -451,8 +462,8 @@ def find_accuray_mms(real, digital, a):
     # print("mms_12 to 202 frequency: accuray", accuray_freq_12, "%")
     # print("mms_13 to 202 frequency: accuray", accuray_freq_13, "%")
     # print("mms_202 frequency: accuray", accuray_freq_202, "%")
-    # print("mms_202 to 11 frequency: accuray", accuray_freq_202_to_11, "%")
-    # print("mms_202 to 12 frequency: accuray", accuray_freq_202_to_12, "%")
+    #print("mms_202 to 11 frequency: accuray", accuray_freq_202_to_11, "%")
+    #print("mms_202 to 12 frequency: accuray", accuray_freq_202_to_12, "%")
     # print("mms_202 to 13 frequency: accuray", accuray_freq_202_to_13, "%")
     mms_dict = {"total": total_value,
                 "total_accuracy": total_accuracy,
